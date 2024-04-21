@@ -35,7 +35,6 @@ def text_append(txt)
   txt = txt.strip
   return if txt.length == 0
   txt = " " + txt unless $current_width == 0 or $skip_space
-  $skip_space = false if $skip_space
 
   # insert #
   case $alignment
@@ -52,16 +51,28 @@ def text_append(txt)
 
       # add them as long as they fit
       while words[0].length + $current_width < $term_width
-        $outcome_lines[$line_count] += " " + words.shift
-        $current_width = $outcome_lines[$line_count].length
+        # add space if not line beginnign
+        w = words.shift
+        w[0] = " " + w[0] unless $current_width == 0 or $skip_space
+        $skip_space = false if $skip_space
+
+        $outcome_lines[$line_count] += w
+        $current_width += w.length
 
         break if words.length == 0
       end
 
       # if word too long
-      if words[0].length > $term_width
-        $outcome_lines << words[0][..$term_width-1]
-        $line_count += 1
+      if words[0].length >= $term_width
+        # if something on line
+        if $outcome_lines[$line_count] != ""
+          $outcome_lines << words[0][..$term_width-1]
+          $line_count += 1
+
+        # if single wird split over multiple lines
+        else
+          $outcome_lines[$line_count] = words[0][..$term_width-1]
+        end
 
         words[0] = words[0][$term_width..]
       end
@@ -71,11 +82,15 @@ def text_append(txt)
       $line_count += 1
       $outcome_lines << ""
 
+
+      puts words.join ' '
       text_append words.join(' ')
     end
   when :center
   when :right
   end
+
+  $skip_space = false if $skip_space
 end
 
 
@@ -172,17 +187,26 @@ insts = {
 def help
   abort "usage: ptts [flags] <filename>\n" \
       + "flags: \n" \
-      + "       -h, --help        prints this help message\n"
-      + "       -p, --plaintext   do not add escape sequences\n"
+      + "       -h, --help        prints this help message\n" \
+      + "       -p, --plaintext   do not add escape sequences\n" \
+      + "       -w, --width <num> sets output width\n" \
+
 end
 
-ARGV.each { |arg|
+while arg = ARGV.shift do
   if arg.start_with?("--")
     case arg[2..]
     when "help"
       help
     when "plaintext"
       $plaintext = true
+
+    when "width"
+      abort "missing argument for --width" if ARGV.length == 0
+
+      $term_width = ARGV.shift.to_i
+        abort "width must be positive numeric vlue" if $term_width < 1
+
     else
       puts "unknown flag: #{arg}"
       help
@@ -195,6 +219,13 @@ ARGV.each { |arg|
         help
       when "p"
         $plaintext = true
+
+      when "w"
+        abort "missing argument for --width" if ARGV.length == 0
+
+        $term_width = ARGV.shift.to_i
+        abort "width must be positive numeric vlue" if $term_width < 1
+
       else
         puts "unknown flag: -#{flag}"
         help
@@ -209,7 +240,7 @@ ARGV.each { |arg|
 
     filename = arg
   end
-}
+end
 
 help unless filename
 

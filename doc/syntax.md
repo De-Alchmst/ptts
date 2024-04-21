@@ -58,13 +58,10 @@ indented by extra 'num' spaces, negative num decreases indent
 
 - @cl{color-word} - makes line in given color, color is given as word
 - @bcl{color-word} - begins color area, color is given as word
-- @ecl{color-word} - ends color area, color is given as word
 - @rgb{r;g;b} - makes line in given color, color is given as ';' separated rgb values
 - @brgb{r;g;b} - begins color area, color is given as ';' separated rgb values
-- @ergb{r;g;b} - ends color area, color is given as ';' separated rgb values
 - @hex{hex} - makes line in given color, color is given as hex code with optional '#'
 - @bhex{hex} - begins color area, color is given as hex code with optional '#' 
-- @ehex{hex} - ends color area, color is given as hex code with optional '#' 
 
 ## formatting control
 - @fg - makes following color-changing instructions affect foreground

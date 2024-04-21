@@ -10,13 +10,21 @@ filename = nil
 $plaintext = false
 
 $term_height, $term_width = IO.console.winsize
+$file_line_count = 0
 
 $outcome_lines = [""]
-$line_count = 0
+$outcome_line_count = 0
 
 $alignment = :left
 $current_width = 0
 $skip_space = false
+
+$color_mode = :foreground
+
+$prev_colors = {
+  :foreground => 39,
+  :background => 49,
+}
 
 ############
 # ADD TEXT #
@@ -24,9 +32,9 @@ $skip_space = false
 def text_append(txt)
 
   # handle empty lines
-  if ["\n", "\n\r", "\r"].include? txt
+  if ["\n", "\n\r", "\r\n", "\r"].include? txt
     $outcome_lines << ""
-    $line_count += 1
+    $outcome_line_count += 1
     $current_width = 0
     return
   end
@@ -41,7 +49,7 @@ def text_append(txt)
   when :left
     # if it fits
     if $current_width + txt.length <= $term_width
-      $outcome_lines[$line_count] += txt
+      $outcome_lines[$outcome_line_count] += txt
       $current_width += txt.length
 
     # if it doesn't
@@ -56,7 +64,7 @@ def text_append(txt)
         w[0] = " " + w[0] unless $current_width == 0 or $skip_space
         $skip_space = false if $skip_space
 
-        $outcome_lines[$line_count] += w
+        $outcome_lines[$outcome_line_count] += w
         $current_width += w.length
 
         break if words.length == 0
@@ -65,13 +73,13 @@ def text_append(txt)
       # if word too long
       if words[0].length >= $term_width
         # if something on line
-        if $outcome_lines[$line_count] != ""
+        if $outcome_lines[$outcome_line_count] != ""
           $outcome_lines << words[0][..$term_width-1]
-          $line_count += 1
+          $outcome_line_count += 1
 
-        # if single wird split over multiple lines
+        # if single word split over multiple lines
         else
-          $outcome_lines[$line_count] = words[0][..$term_width-1]
+          $outcome_lines[$outcome_line_count] = words[0][..$term_width-1]
         end
 
         words[0] = words[0][$term_width..]
@@ -79,11 +87,9 @@ def text_append(txt)
 
       # call again with the rest
       $current_width = 0
-      $line_count += 1
+      $outcome_line_count += 1
       $outcome_lines << ""
 
-
-      puts words.join ' '
       text_append words.join(' ')
     end
   when :center
@@ -93,44 +99,93 @@ def text_append(txt)
   $skip_space = false if $skip_space
 end
 
+################
+# HELPER stuff #
+################
+
+COLORS = {
+  :foreground => {
+    "black"   => "30",
+    "red"     => "31",
+    "green"   => "32",
+    "yellow"  => "33",
+    "blue"    => "34",
+    "magenta" => "35",
+    "cyan"    => "36",
+    "white"   => "37",
+
+    "bright-black"   => "90",
+    "bright-red"     => "91",
+    "bright-green"   => "92",
+    "bright-yellow"  => "93",
+    "bright-blue"    => "94",
+    "bright-magenta" => "95",
+    "bright-cyan"    => "96",
+    "bright-white"   => "97",
+
+    "default" => "39",
+  },
+
+  :background => {
+    "black"   => "40",
+    "red"     => "41",
+    "green"   => "42",
+    "yellow"  => "43",
+    "blue"    => "44",
+    "magenta" => "45",
+    "cyan"    => "46",
+    "white"   => "47",
+
+    "bright-black"   => "100",
+    "bright-red"     => "101",
+    "bright-green"   => "102",
+    "bright-yellow"  => "103",
+    "bright-blue"    => "104",
+    "bright-magenta" => "105",
+    "bright-cyan"    => "106",
+    "bright-white"   => "107",
+
+    "default" => "49",
+  }
+}
 
 ################
 # INSTRUCTIONS #
 ################
 
-insts = {
+insts_no_arg = {
   "@" => [                  # name
     lambda {add_text "@"},  # beginning of line
     lambda {},              # end of line
   ],
 
   "b" => [
-    lambda {$outcome_lines[$line_count] += "\x1b[1m" unless $plaintext},
-    lambda {$outcome_lines[$line_count] += "\x1b[22m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[1m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[22m" unless $plaintext},
   ],
 
   "bb" => [
-    lambda {$outcome_lines[$line_count] += "\x1b[1m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[1m" unless $plaintext},
     lambda {},
   ],
 
   "eb" => [
-    lambda {$outcome_lines[$line_count] += "\x1b[22m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[22m" unless $plaintext},
     lambda {},
   ],
 
   "i" => [
-    lambda {$outcome_lines[$line_count] += "\x1b[3m" unless $plaintext},
-    lambda {$outcome_lines[$line_count] += "\x1b[23m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[3m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[23m" unless $plaintext},
   ],
 
   "bi" => [
-    lambda {$outcome_lines[$line_count] += "\x1b[3m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[3m" unless $plaintext},
     lambda {},
   ],
 
   "ei" => [
-    lambda {$outcome_lines[$line_count] += "\x1b[23m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[23m" unless $plaintext},
     lambda {},
   ],
 
@@ -138,12 +193,12 @@ insts = {
     lambda {
       return if $plaintext
       if $current_width != $term_width
-        $outcome_lines[$line_count] += " " # to not underline this space
+        $outcome_lines[$outcome_line_count] += " " # to not underline this space
         $skip_space = true
       end
-      $outcome_lines[$line_count] += "\x1b[4m"
+      $outcome_lines[$outcome_line_count] += "\x1b[4m"
     },
-    lambda {$outcome_lines[$line_count] += "\x1b[24m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[24m" unless $plaintext},
   ],
 
   "bu" => [
@@ -151,33 +206,84 @@ insts = {
       return if $plaintext
 
       if $current_width != $term_width
-        $outcome_lines[$line_count] += " " # to not underline this space
+        $outcome_lines[$outcome_line_count] += " " # to not underline this space
         $skip_space = true
       end
-      $outcome_lines[$line_count] += "\x1b[4m"
+      $outcome_lines[$outcome_line_count] += "\x1b[4m"
     },
     lambda {},
   ],
 
   "eu" => [
-    lambda {$outcome_lines[$line_count] += "\x1b[24m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[24m" unless $plaintext},
     lambda {},
   ],
 
   "blink" => [
-    lambda {$outcome_lines[$line_count] += "\x1b[5m" unless $plaintext},
-    lambda {$outcome_lines[$line_count] += "\x1b[25m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[5m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[25m" unless $plaintext},
   ],
 
   "bblink" => [
-    lambda {$outcome_lines[$line_count] += "\x1b[5m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[5m" unless $plaintext},
     lambda {},
   ],
 
   "eblink" => [
-    lambda {$outcome_lines[$line_count] += "\x1b[25m" unless $plaintext},
+    lambda {$outcome_lines[$outcome_line_count] += "\x1b[25m" unless $plaintext},
     lambda {},
   ],
+
+  "fg" => [
+    lambda { $color_mode = :foreground },
+    lambda {},
+  ],
+
+  "bg" => [
+    lambda { $color_mode = :background },
+    lambda {},
+  ],
+
+}
+
+insts_with_arg = {
+  "cl" => [
+    lambda { |arg|
+      return if $plaintext
+
+      c = COLORS[$color_mode][arg]
+      unless c
+        abort "unknown color: #{arg} in file: #{filename} " \
+            + "at line #{$file_line_count}"
+      end
+
+      $outcome_lines[$outcome_line_count] += "\x1b[#{c}m"
+    },
+    lambda { |arg|
+      return if $plaintext
+
+      $outcome_lines[$outcome_line_count] \
+      += "\x1b[#{$prev_colors[$color_mode]}m"
+    },
+  ],
+
+  "bcl" => [
+    lambda { |arg|
+      return if $plaintext
+
+      c = COLORS[$color_mode][arg]
+      unless c
+        abort "unknown color: #{arg} in file: #{filename} " \
+            + "at line #{$file_line_count}"
+      end
+
+      $outcome_lines[$outcome_line_count] += "\x1b[#{c}m"
+
+      $prev_colors[$color_mode] = c
+    },
+    lambda {|arg|},
+  ],
+
 }
 
 ###############
@@ -260,77 +366,107 @@ f.close
 ####################
 
 # go through lines #
-lines.each { |line|
-  # no instruction
-  unless line.start_with? "@" and line.length > 1
-    text_append line
+for $file_line_count in 1..lines.length
+  begin # to handle comments
 
-  # some instruction
-  else
-    # split into instructions, arguments and text body #
-    instructions = []
-    txt = ""
-    enclose_level = 0
-    prev = 0
+    line = lines[$file_line_count-1]
+    # no instruction
+    unless line.start_with? "@" and line.length > 1
+      text_append line
 
-    for i in 2..line.length-1
-      case line[i]
-      when "{"
-        enclose_level += 1
-      when "}"
-        enclose_level -= 1
-      when ";"
-        if enclose_level == 0
-          inst = line[prev+1..i-1] # get entire instruction
+    # some instruction
+    else
+      # split into instructions, arguments and text body #
+      instructions = []
+      txt = ""
+      enclose_level = 0
+      prev = 0
 
-          arg = inst.match(/\{(.*)\}/) # get argument part
-          arg = arg[1] if arg # specify only capture if found
-          
-          instructions << [inst.sub(/\{.*/, ""), arg] # pair together
+      for i in 2..line.length-1
+        case line[i]
+        when "{"
+          enclose_level += 1
+        when "}"
+          enclose_level -= 1
+        when ";"
+          if enclose_level == 0
+            inst = line[prev+1..i-1] # get entire instruction
 
-          prev = i
-        end
-      when /\s/
-        if enclose_level == 0
-          inst = line[prev+1..i-1]
+            arg = inst.match(/\{(.*)\}/) # get argument part
+            arg = arg[1] if arg # specify only capture if found
+            
+            instructions << [inst.sub(/\{.*/, ""), arg] # pair together
 
-          arg = inst.match(/\{(.*)\}/)
-          arg = arg[1] if arg
-          
-          instructions << [inst.sub(/\{.*/, ""), arg]
+            prev = i
+          end
+        when /\s/
+          if enclose_level == 0
+            inst = line[prev+1..i-1]
 
-          txt = line[i+1..]
-          break
+            arg = inst.match(/\{(.*)\}/)
+            arg = arg[1] if arg
+            
+            instructions << [inst.sub(/\{.*/, ""), arg]
+
+            txt = line[i+1..]
+            break
+          end
         end
       end
+
+      # call beginning of instructions #
+      instructions.each { |inst|
+        next line_loop if inst[0] == "cmnt"
+
+        # handle innitial instruction calls and checks
+
+        # insts without arguments
+        if !insts_no_arg[inst[0]].nil?
+          # check
+          unless inst[1].nil?
+            abort "extra argument given to: #{inst[0]} in file: #{filename} " \
+                + "at line #{$file_line_count}"
+          end
+
+          # call
+          insts_no_arg[inst[0]][0].call
+
+        # insts with arguments
+        elsif !insts_with_arg[inst[0]].nil?
+          # check
+          if inst[1].nil?
+            abort "missing argument for: #{inst[0]} in file: #{filename} " \
+                + "at line #{$file_line_count}"
+          end
+          
+          # call
+          insts_with_arg[inst[0]][0].call inst[1]
+
+        else
+          abort "unknown instruction: #{inst[0]} in file: #{filename} " \
+              + "at line #{$file_line_count}"
+        end
+      }
+
+      # add text
+      text_append txt
+
+      # call end of instructions #
+      instructions.each { |inst|
+
+        if inst[1].nil?
+          insts_no_arg[inst[0]][1].call
+        else
+          insts_with_arg[inst[0]][1].call inst[1]
+        end
+      }
+
     end
-
-    # call beginning of instructions #
-    instructions.each { |inst|
-      abort "unknown instruction: #{inst[0]}" if insts[inst[0]].nil?
-
-      if inst[1].nil?
-        insts[inst[0]][0].call
-      else
-        insts[inst[0]][0].call inst[1]
-      end
-    }
-
-    # add text
-    text_append txt
-
-    # call end of instructions #
-    instructions.each { |inst|
-      if inst[1].nil?
-        insts[inst[0]][1].call
-      else
-        insts[inst[0]][1].call inst[1]
-      end
-    }
-
+  rescue
   end
-}
+end
 
 # print outcome #
 puts ""
-puts $outcome_lines, "\n\x1b[0m"
+puts $outcome_lines
+print "\x1b[0m"

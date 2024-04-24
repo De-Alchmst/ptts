@@ -26,6 +26,14 @@ $prev_colors = {
   :background => 49,
 }
 
+$indent_level = 0
+$indent_level_length = 0
+$indent_extra = 0
+$indent = 0
+
+$prev_indent_level = 0
+$prev_indent_extra = 0
+
 ############
 # ADD TEXT #
 ############
@@ -33,16 +41,19 @@ def text_append(txt)
 
   # handle empty lines
   if ["\n", "\n\r", "\r\n", "\r"].include? txt
-    $outcome_lines << ""
+    $outcome_lines << " " * $indent
     $outcome_line_count += 1
-    $current_width = 0
+    $current_width = $indent
     return
   end
 
   # handle whitespace soroundings
   txt = txt.strip
   return if txt.length == 0
-  txt = " " + txt unless $current_width == 0 or $skip_space
+  unless $outcome_lines.last.match(/\w/) \
+      or $current_width == $indent or $skip_space
+    txt = " " + txt 
+  end
 
   # insert #
   case $alignment
@@ -73,22 +84,22 @@ def text_append(txt)
       # if word too long
       if words[0].length >= $term_width
         # if something on line
-        if $outcome_lines[$outcome_line_count] != ""
-          $outcome_lines << words[0][..$term_width-1]
+        if $outcome_lines[$outcome_line_count].strip != ""
+          $outcome_lines << " "*$indent + words[0][..$term_width-1-$indent]
           $outcome_line_count += 1
 
         # if single word split over multiple lines
         else
-          $outcome_lines[$outcome_line_count] = words[0][..$term_width-1]
+          $outcome_lines[$outcome_line_count]=words[0][..$term_width-1-$indent]
         end
 
         words[0] = words[0][$term_width..]
       end
 
       # call again with the rest
-      $current_width = 0
+      $current_width = $indent
       $outcome_line_count += 1
-      $outcome_lines << ""
+      $outcome_lines << " " * $indent
 
       text_append words.join(' ')
     end
@@ -148,6 +159,17 @@ COLORS = {
     "default" => "49",
   }
 }
+
+def new_block()
+  if $outcome_lines.last.match /\w/
+    $outcome_lines << " " * $indent
+    $current_width = $indent
+    $outcome_line_count += 1
+  else
+    $outcome_lines[$outcome_line_count] = \
+      $outcome_lines[$outcome_line_count].strip + " " * $indent
+  end
+end
 
 ################
 # INSTRUCTIONS #
@@ -284,6 +306,86 @@ insts_with_arg = {
     lambda {|arg|},
   ],
 
+  "setindl" => [
+    lambda { |arg|
+      val = arg.match /^\d+$/
+      unless val 
+        abort "not a whole positive number #{arg} " \
+            + "in file: #{filename} at line #{$file_line_count}" \
+      end
+
+      $indent_level_length = val[0].to_i
+
+      $indent = $indent_level * $indent_level_length + $indent_extra
+
+      $indent = 0 if $indent < 0
+
+      if $indent >= $term_width
+        abort "indent too large: #{val} " \
+            + "in file: #{filename} at line #{$file_line_count}"
+      end
+    },
+    lambda {|arg|},
+  ],
+
+  "bindl" => [
+    lambda { |arg|
+      val = arg.match /^\-?\d+$/
+      unless val 
+        abort "not a whole number #{arg} " \
+            + "in file: #{filename} at line #{$file_line_count}" \
+      end
+
+      $prev_indent_level += $indent_level
+
+      $indent_level += val[0].to_i
+      $indent_level = 0 if $indent_level < 0
+
+      $indent = $indent_level * $indent_level_length + $indent_extra
+      $indent = 0 if $indent < 0
+      
+      if $indent >= $term_width
+        abort "indent too large: #{val} " \
+            + "in file: #{filename} at line #{$file_line_count}"
+      end
+
+      new_block
+    },
+    lambda {|arg|},
+  ],
+
+  "indl" => [
+    lambda { |arg|
+      val = arg.match /^\-?\d+$/
+      unless val 
+        abort "not a whole number #{arg} " \
+            + "in file: #{filename} at line #{$file_line_count}" \
+      end
+
+      $prev_indent_level = $indent_level
+
+      $indent_level += val[0].to_i
+      $indent_level = 0 if $indent_level < 0
+
+      $indent = $indent_level * $indent_level_length + $indent_extra
+      $indent = 0 if $indent < 0
+      
+      if $indent >= $term_width
+        abort "indent too large: #{val} " \
+            + "in file: #{filename} at line #{$file_line_count}"
+      end
+
+      new_block
+
+    },
+    lambda { |arg|
+      $indent_level = $prev_indent_level
+
+      $indent = $indent_level * $indent_level_length + $indent_extra
+      $indent = 0 if $indent < 0
+    },
+  ],
+
 }
 
 ###############
@@ -406,7 +508,7 @@ for $file_line_count in 1..lines.length
             arg = inst.match(/\{(.*)\}/)
             arg = arg[1] if arg
             
-            instructions << [inst.sub(/\{.*/, ""), arg]
+            instructions << [inst.sub(/\{.*/, ""), arg.strip]
 
             txt = line[i+1..]
             break

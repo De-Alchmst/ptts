@@ -32,8 +32,6 @@ spaces. rest of block will be not affected, negative num decreases indent
 - @bindn{num} - sets curent line as block beginning and all text will be
 indented by extra 'num' spaces, negative num decreases indent
 
-- @regex{name} - applies sed-like regex expression on current line
-
 - @line - adds full width line
 - @vtab{num} - adds 'num' newlines, also breaks blocks
 

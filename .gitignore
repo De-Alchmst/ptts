@@ -57,3 +57,7 @@ build-iPhoneSimulator/
 
 test.*
 out.txt
+
+lib/
+shard.lock
+ptts

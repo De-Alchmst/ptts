@@ -1,6 +1,5 @@
 require "./pages.cr"
 require "./display.cr"
-require "ncurses"
 require "./file_handle.cr"
 
 #####################
@@ -44,10 +43,10 @@ until ARGV.empty?
          case flag
          when 'h'
             help
-         when "p"
+         when 'p'
             Data.plaintext = true
 
-         when "w"
+         when 'w'
             abort "missing argument for --width" if ARGV.empty?
 
             Data.term_width = ARGV.shift.to_i
@@ -60,7 +59,7 @@ until ARGV.empty?
       }
 
    else
-      if filename
+      unless filename.empty?
          puts "unknown argument: #{arg}"
          help
       end
@@ -69,9 +68,10 @@ until ARGV.empty?
    end
 end
 
-help unless filename
+help if filename.empty?
 
 #########################
 # PROCESS FILE CONTENTS #
 #########################
 process_file filename
+display

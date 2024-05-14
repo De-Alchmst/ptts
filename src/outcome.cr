@@ -2,7 +2,7 @@ require "./data.cr"
 require "./pages.cr"
 
 module Outcome
-   class_property pages, fg, bg, alingment, bold, italic, underline
+   class_property pages, fg, bg, alingment, bold, italic, underline, indent
 
    @@alingment = Alingment::Left
 
@@ -13,38 +13,40 @@ module Outcome
    @@italic = false
    @@underline = false
 
+   @@indent = 0
 
-   @@pages = [Page.new(@@alingment)]
+   @@pages = [Page.new(@@alingment, 0)]
 
-   def cur_page
-      @@pages.last
-   end
-
-   def alingment=(@@alingment : Alingment)
+   def self.alingment=(@@alingment : Alingment)
       cur_page() = @alingment
    end
 
    # insert text to line like normal
-   def append(text : String)
+   def self.append(text : String)
+      overflow = @@pages.last.append text
 
+      unless overflow.empty?
+         @@pages << Page.new(@@alingment, @@indent)
+         self.append overflow
+      end
    end
 
    # change stuff
 
-   def fg=(new)
+   def self.fg=(new)
       @@fg = Colors.fg[new]
    end
-   def bg=(new)
+   def self.bg=(new)
       @@bg = Colors.bg[new]
    end
 
-   def bold=(new)
+   def self.bold=(new)
       @@bold = new
    end
-   def italic=(new)
+   def self.italic=(new)
       @@italic = new
    end
-   def underline=(new)
+   def self.underline=(new)
       @@underline = new
    end
 end

@@ -1,9 +1,10 @@
-require "./pages.cr"
 require "./data.cr"
+require "./outcome.cr"
 
-def show(book : String)
-   # for some reason \n behaves as it should
-   # probably a ncurses thing
-   puts "#{Data.term_width}, #{Data.term_height}\r"
-   puts book
+def display()
+   Outcome.pages.each { |page|
+      page.lines.each { |line|
+         puts line.text
+      }
+   }
 end

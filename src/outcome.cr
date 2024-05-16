@@ -22,13 +22,31 @@ module Outcome
    end
 
    # insert text to line like normal
-   def self.append(text : String)
-      overflow = @@pages.last.append text
+   def self.append(text : String, strip=true)
+      overflow = @@pages.last.append text, strip
 
       unless overflow.empty?
          @@pages << Page.new(@@alingment, @@indent)
          self.append overflow
       end
+   end
+
+   # inserts text sneakily
+   def self.insert(text : String)
+      @@pages.last.insert text
+      nil
+   end
+
+   # wrappers over last page
+   def self.curr_width
+      @@pages.last.curr_width
+   end
+
+   def self.skip_space=(new)
+      @@pages.last.skip_space = new
+   end
+   def self.skip_space
+      @@pages.last.skip_space
    end
 
    # change stuff

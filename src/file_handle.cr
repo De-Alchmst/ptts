@@ -3,6 +3,8 @@ require "./outcome.cr"
 require "./instructions.cr"
 
 def process_file(filename : String)
+   Data.filename = filename
+
    #################
    # READ THE FILE #
    #################
@@ -40,7 +42,7 @@ def process_file(filename : String)
                   inst = line[prev+1..i-1] # entire instruction
 
                   # get argument
-                  arg_match = inst.match /\{(.*)\}/
+                  arg_match = inst.match /\{(.*?)\}/
                   # only the capture if found
                   arg = arg_match ? arg_match[1] : ""
 
@@ -58,7 +60,7 @@ def process_file(filename : String)
 
          # CALL BEFORE ADDTING TEXT #
          cmnt = false
-         puts instructions
+         # puts instructions
          instructions.each { |inst|
             if inst[0] == "cmnt"
                cmnt = true
@@ -84,7 +86,7 @@ def process_file(filename : String)
                      + " in file: #{filename} at line #{i}"
                end
                # call
-               Insts.with_arg[inst[0]][0].call(inst[1], i)
+               Insts.with_arg[inst[0]][0].call(inst[1])
             # missing inst #
             else
                abort "unknown instruction: #{inst[0]} in file: #{filename} " \
@@ -104,7 +106,7 @@ def process_file(filename : String)
             if Insts.no_arg.has_key? inst[0]
                Insts.no_arg[inst[0]][1].call
             else
-               Insts.with_arg[inst[0]][1].call(inst[1], i)
+               Insts.with_arg[inst[0]][1].call(inst[1])
             end
          }
       end

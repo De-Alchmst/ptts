@@ -12,7 +12,7 @@ class Line
 end
 
 class Page
-   property indent, skip_space, lines
+   property indent, skip_space, lines, curr_width
 
    @curr_width = 0
    @skip_space = false
@@ -31,8 +31,8 @@ class Page
    ###################################
    # insert text to line like normal #
    ###################################
-   def append(text : String)
-      text = text.strip
+   def append(text : String, strip=true)
+      text = text.strip if strip
 
       # empty lines
       if text.empty?
@@ -44,7 +44,7 @@ class Page
       end
 
       # add space and stuff
-      unless @lines.last.empty || @skip_space
+      unless @lines.last.empty || @skip_space || !strip
          text = " " + text
       end
 
@@ -102,5 +102,6 @@ class Page
    # sneakely insert text (escape sequence) #
    # to line without any other consequences #
    def insert(text : String)
+      @lines.last.text += text
    end
 end

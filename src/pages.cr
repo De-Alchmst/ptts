@@ -49,11 +49,11 @@ class Page
       end
 
       # insert #
-      @lines.last.empty = false
       # if stuff goes nicely
       if @curr_width + text.size <= Data.term_width
          @lines.last.text += text
          @curr_width += text.size
+         @lines.last.empty = false
       #if it does not
       else
          # split into words
@@ -67,6 +67,7 @@ class Page
 
             @lines.last.text += w
             @curr_width += w.size
+            @lines.last.empty = false
 
             break if words.empty?
          end
@@ -78,9 +79,9 @@ class Page
                @lines << Line.new(" " * @indent + \
                                   words[0][..Data.term_width - 1 - @indent], \
                                   @alingment)
-            # if one word uver multiple lones
+            # if one word uder multiple lines
             else
-               @lines.first.text += words[0][..Data.term_width - 1 - @indent] 
+               @lines.last.text += words[0][..Data.term_width - 1 - @indent] 
             end
 
             words[0] = words[0][Data.term_width..]
@@ -103,5 +104,23 @@ class Page
    # to line without any other consequences #
    def insert(text : String)
       @lines.last.text += text
+   end
+
+   def new_block
+      if @lines.last.empty
+         @lines.last.text = @lines.last.text.strip + " " * @indent
+      else
+         @lines << Line.new(" " * @indent, @alingment)
+      end
+      @curr_width = @indent
+
+      false
+   end
+
+   def reset_indent
+      if @lines.last.empty
+         @lines.last.text = @lines.last.text.strip + " " * @indent
+      @curr_width = @indent
+      end
    end
 end

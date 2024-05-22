@@ -302,7 +302,7 @@ insts_with_arg = {
       $outcome_lines[$outcome_line_count] += "\x1b[#{c}m"
 
       $prev_colors[$color_mode] = c
-    },
+   },
     lambda {|arg|},
   ],
 

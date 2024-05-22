@@ -49,6 +49,10 @@ module Outcome
       @@pages.last.skip_space
    end
 
+   def self.indent=(new)
+      @@indent = new
+      pages.last.indent = new
+   end
    # change stuff
 
    def self.fg=(new)
@@ -58,13 +62,14 @@ module Outcome
       @@bg = Colors.bg[new]
    end
 
-   def self.bold=(new)
-      @@bold = new
+   def self.new_block
+      eop = @@pages.last.new_block
+      if eop
+         @@pages << Page.new(@@alingment, @@indent)
+      end
    end
-   def self.italic=(new)
-      @@italic = new
-   end
-   def self.underline=(new)
-      @@underline = new
+
+   def self.reset_indent
+      @@pages.last.reset_indent
    end
 end

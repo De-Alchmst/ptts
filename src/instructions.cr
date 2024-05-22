@@ -3,7 +3,7 @@ require "./data.cr"
 
 def extra_space
    if Outcome.curr_width != Data.term_width && Outcome.curr_width > 0 \
-         && !Outcome.skip_space
+         && !Outcome.skip_space && !Outcome.pages.last.lines.last.empty
       Outcome.append " ", strip=false
       Outcome.skip_space = true
    end
@@ -152,5 +152,95 @@ module Insts
          },
          ->(arg : String) { }
       ],
+
+      "setindl" => [
+         ->(arg : String) {
+            val = arg.match /^\d+$/
+
+            unless val
+               abort "not a whole positive number #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Data.indent_level_length = arg.to_i
+
+            Outcome.indent = Data.indent_level * Data.indent_level_length \
+                           + Data.indent_extra
+
+            Outcome.indent = 0 if Outcome.indent < 0
+
+            if Outcome.indent >= Data.term_width
+               abort "indent too large: #{val} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Outcome.reset_indent
+            nil
+         },
+         ->(arg : String) { }
+      ],
+
+      "bindl" => [
+         ->(arg : String) {
+            val = arg.match /^\-?\d+$/
+
+            unless val
+               abort "not a whole positive number #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Data.indent_level += arg.to_i
+            Data.indent_level = 0 if Data.indent_level < 0
+
+            Outcome.indent = Data.indent_level * Data.indent_level_length \
+                           + Data.indent_extra
+
+            Outcome.indent = 0 if Outcome.indent < 0
+
+            if Outcome.indent >= Data.term_width
+               abort "indent too large: #{val} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Outcome.new_block
+            nil
+         },
+         ->(arg : String) { }
+      ],
+
+      "indl" => [
+         ->(arg : String) {
+            val = arg.match /^\-?\d+$/
+
+            unless val
+               abort "not a whole positive number #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            delta = arg.to_i
+
+            Data.indent_level += delta
+            Data.indent_level = 0 if Data.indent_level < 0
+
+            Outcome.indent = Data.indent_level * Data.indent_level_length \
+                           + Data.indent_extra
+
+            Outcome.indent = 0 if Outcome.indent < 0
+
+            if Outcome.indent >= Data.term_width
+               abort "indent too large: #{val} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Outcome.new_block
+
+            Data.indent_level -= delta
+            Outcome.indent = Data.indent_level * Data.indent_level_length \
+                           + Data.indent_extra
+            nil
+         },
+         ->(arg : String) { }
+      ],
+
    }
 end

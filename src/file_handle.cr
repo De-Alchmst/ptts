@@ -33,9 +33,9 @@ def process_file(filename : String)
          # split into instructions
          (2..line.size-1).each { |i|
             case "#{line[i]}"
-            when "{"
+            when '{'
                enclose_level += 1
-            when "}"
+            when '}'
                enclose_level -= 1
             when /[;\s]/
                if enclose_level == 0

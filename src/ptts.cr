@@ -12,6 +12,7 @@ def help
       + "       -h, --help        prints this help message\n" \
       + "       -p, --plaintext   do not add escape sequences\n" \
       + "       -w, --width <num> sets output width\n" \
+      + "       -s, --stdout      do not use tui interface" \
 
 end
 
@@ -33,6 +34,9 @@ until ARGV.empty?
          Data.term_width = ARGV.shift.to_i
          abort "width must be positive numeric vlue" if Data.term_width < 1
 
+      when "stdout"
+         Data.output_mode = :stdout
+
       else
          puts "unknown flag: #{arg}"
          help
@@ -51,6 +55,9 @@ until ARGV.empty?
 
             Data.term_width = ARGV.shift.to_i
             abort "width must be positive numeric vlue" if Data.term_width < 1
+
+         when 's'
+            Data.output_mode = :stdout
 
          else
             puts "unknown flag: -#{flag}"

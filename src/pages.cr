@@ -120,7 +120,7 @@ class Page
    def reset_indent
       if @lines.last.empty
          @lines.last.text = @lines.last.text.strip + " " * @indent
-      @curr_width = @indent
+         @curr_width = @indent
       end
    end
 end

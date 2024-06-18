@@ -66,9 +66,25 @@ end
 
 def draw_bar
    print "\x1b[#{Data.term_height};0H"
-   print "\x1b[0;7m" \
-      + " " * Data.term_width \
-      + "\x1b[0m"
+   bar = ""
+
+   scroll = "scroll: #{Data.scroll}"
+   gap = Data.term_width - Data.filename.size - scroll.size - 2
+
+   if gap < 0
+      scroll = Data.scroll.to_s
+      gap = Data.term_width - Data.filename.size - scroll.size - 2
+   end
+
+   if gap >= 0
+      bar = " " + Data.filename + " " * gap + scroll + " "
+   elsif scroll.size - 1 <= Data.term_width
+      bar = " " + scroll + " " * (Data.term_width - scroll.size)
+   else
+      bar = " " * Data.term_width
+   end
+
+   print "\x1b[0;7m" + bar + "\x1b[0m"
 end
 
 def reset

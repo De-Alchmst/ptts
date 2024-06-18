@@ -77,6 +77,11 @@ end
 
 help if filename.empty?
 
+# detect if piped
+unless STDOUT.tty?
+   Data.output_mode = :stdout
+end
+
 #########################
 # PROCESS FILE CONTENTS #
 #########################

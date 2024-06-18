@@ -1,7 +1,8 @@
 module Data
    class_property term_width, term_height, plaintext, file_line_count, \
       filename, color_mode, prev_colors, indent_level, indent_level_length, \
-      indent_extra, output_mode, scroll
+      indent_extra, output_mode, scroll, is_bold, is_italic, is_underlined, \
+      is_blink
    @@term_width : Int32 = `tput cols`.to_i
    @@term_height : Int32 = `tput lines`.to_i
    @@plaintext = false
@@ -14,6 +15,10 @@ module Data
    @@indent_extra = 0 # extralevel independent indent
    @@output_mode = :tui
    @@scroll = 0
+   @@is_bold = false
+   @@is_italic = false
+   @@is_underlined = false
+   @@is_blink = false
 end
 
 module Colors

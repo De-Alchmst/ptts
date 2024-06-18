@@ -22,32 +22,64 @@ module Insts
       ],
 
       "b" => [
-         -> {Outcome.insert("\x1b[1m") unless Data.plaintext},
-         -> {Outcome.insert("\x1b[22m") unless Data.plaintext}
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[1m")
+            Data.is_bold = true; nil
+         },
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[22m")
+            Data.is_bold = false; nil
+         }
       ],
 
       "bb" => [
-         -> {Outcome.insert("\x1b[1m") unless Data.plaintext},
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[1m")
+            Data.is_bold = true; nil
+         },
          -> {}
       ],
 
       "eb" => [
-         -> {Outcome.insert("\x1b[22m") unless Data.plaintext},
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[22m")
+            Data.is_bold = false; nil
+         },
          -> {}
       ],
 
       "i" => [
-         -> {Outcome.insert("\x1b[3m") unless Data.plaintext},
-         -> {Outcome.insert("\x1b[23m") unless Data.plaintext}
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[3m")
+            Data.is_italic = true; nil
+         },
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[23m")
+            Data.is_italic = false; nil
+         }
       ],
 
       "bi" => [
-         -> {Outcome.insert("\x1b[3m") unless Data.plaintext},
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[3m")
+            Data.is_italic = true; nil
+         },
          -> {}
       ],
 
       "ei" => [
-         -> {Outcome.insert("\x1b[23m") unless Data.plaintext},
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[23m")
+            Data.is_italic = false; nil
+         },
          -> {}
       ],
 
@@ -57,8 +89,14 @@ module Insts
 
             extra_space
             Outcome.insert("\x1b[4m")
+            Data.is_underlined = true; nil
+            
          },
-         -> {Outcome.insert("\x1b[24m") unless Data.plaintext}
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[24m")
+            Data.is_underlined = false; nil
+         }
       ],
 
       "bu" => [
@@ -67,27 +105,48 @@ module Insts
 
             extra_space
             Outcome.insert("\x1b[4m")
+            Data.is_underlined = true; nil
          },
          -> {}
       ],
 
       "eu" => [
-         -> {Outcome.insert("\x1b[24m") unless Data.plaintext},
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[24m")
+            Data.is_underlined = false; nil
+         },
          -> {}
       ],
 
       "blink" => [
-         -> {Outcome.insert("\x1b[5m") unless Data.plaintext},
-         -> {Outcome.insert("\x1b[25m") unless Data.plaintext}
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[5m")
+            Data.is_blink = true; nil
+         },
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[25m")
+            Data.is_blink = false; nil
+         }
       ],
 
       "bblink" => [
-         -> {Outcome.insert("\x1b[5m") unless Data.plaintext},
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[5m")
+            Data.is_blink = true; nil
+         },
          -> {}
       ],
 
       "eblink" => [
-         -> {Outcome.insert("\x1b[25m") unless Data.plaintext},
+         -> {
+            return if Data.plaintext
+            Outcome.insert("\x1b[25m")
+            Data.is_blink = false; nil
+         },
          -> {}
       ],
 

@@ -54,7 +54,7 @@ def draw_screen
 
    # display lines #
    print "\x1b[H"
-   (0..Data.term_height-1).each { |i|
+   (0..Data.term_height-2).each { |i|
       if Data.scroll+i >= Outcome.pages[0].lines.size
          break
       end
@@ -66,7 +66,7 @@ end
 
 def draw_bar
    print "\x1b[#{Data.term_height};0H"
-   print "\x1b[7m" \
+   print "\x1b[0;7m" \
       + " " * Data.term_width \
       + "\x1b[0m"
 end

@@ -7,6 +7,18 @@ end
 class Line
    property text, alingment, empty
    def initialize(@text : String, @alingment : Alingment)
+      unless Data.plaintext
+         text_leading_whitespace = @text.sub /\S.*/, ""
+         text_contents = @text.sub /^\s+/, ""
+         @text = "\x1b[0m" + text_leading_whitespace \
+               + "\x1b[#{Data.prev_colors[:foreground]}" \
+               + ";#{Data.prev_colors[:background]}" \
+               + (Data.is_bold ? ";1" : "") \
+               + (Data.is_italic ? ";3" : "") \
+               + (Data.is_underlined ? ";4" : "") \
+               + (Data.is_blink ? ";5" : "") \
+               + "m" + text_contents
+      end
       @empty = true
    end
 end

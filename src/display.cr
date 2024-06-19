@@ -170,13 +170,13 @@ def search(prompt)
    num = 0
    # go through lines #
    (0..Outcome.pages[0].lines.size-1).each { |i|
-      
       # line stripped of all escape sequences
       ln = Outcome.pages[0].lines[i].text.gsub Regex.new("\x1b\\[.*?m"), ""
-      m = ln.match prom
 
-      if m
+      offset = 0
+      while m = prom.match(ln, offset)
          Data.search_list.push SearchItem.new(i, m.begin(0), m.end(0))
+         offset = m.end 0
          num += 1
       end
    }

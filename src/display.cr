@@ -20,26 +20,52 @@ def display()
 
    reader = Term::Reader.new
 
+   prev_key = ""
+
    loop {
       draw_screen
 
-      char = reader.read_keypress
+      char = reader.read_keypress.to_s.gsub '\e', ""
 
-      if char == "\u0018"
-         exit
-      end
+      # ctrl-c
+      exit if char == "\u0018" 
 
-      case char.to_s.gsub '\e', ""
+      case char
+         # quit
          when "q"
             reset
             exit
 
-         when "j", "[B"
-            Data.scroll+=1
+         # normal scroll (somehow also works with mouse scroll?)
          when "k", "[A"
-            Data.scroll-=1 unless Data.scroll == 0
+            Data.scroll -= 1 unless Data.scroll == 0
+         when "j", "[B"
+            Data.scroll += 1
+
+         # pg up / down
+         when "[5~", "\u0015"
+            Data.scroll -= ((Data.term_height - 1) / 2).to_i
+            Data.scroll = 0 if Data.scroll < 0
+         when "[6~", "\u0004"
+            Data.scroll += ((Data.term_height - 1) / 2).to_i
+
+         # home/end 
+         when "[1~"
+            Data.scroll = 0
+         when "g"
+            if prev_key == "g"
+               Data.scroll = 0
+               prev_key = ""
+            else
+               prev_key = "g"
+            end
+         when "G", "[4~"
+            new = Outcome.pages[0].lines.size - Data.term_height + 1
+            Data.scroll = new if new > 0
       end
    }
+
+   prev_key = "" unless char = "g"
 
    rescue e : Term::Reader::InputInterrupt
       reset

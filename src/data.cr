@@ -2,7 +2,7 @@ module Data
    class_property term_width, term_height, plaintext, file_line_count, \
       filename, color_mode, prev_colors, indent_level, indent_level_length, \
       indent_extra, output_mode, scroll, is_bold, is_italic, is_underlined, \
-      is_blink
+      is_blink, search_list, search_index
    @@term_width : Int32 = `tput cols`.to_i
    @@term_height : Int32 = `tput lines`.to_i
    @@plaintext = false
@@ -19,6 +19,15 @@ module Data
    @@is_italic = false
    @@is_underlined = false
    @@is_blink = false
+   @@search_list = Array(SearchItem).new
+   @@search_index = 0
+end
+
+class SearchItem
+   property position, match_start, match_end
+
+   def initialize(@position : Int32, @match_start : Int32, @match_end : Int32)
+   end
 end
 
 module Colors

@@ -3,6 +3,7 @@ require "./outcome.cr"
 require "./instructions.cr"
 
 def process_file(filename : String)
+   Outcome.init
    Data.filename = filename
 
    #################

@@ -15,7 +15,11 @@ module Outcome
 
    @@indent = 0
 
-   @@pages = [Page.new(@@alingment, 0)]
+   @@pages = Array(Page).new
+
+   def self.init
+      @@pages.push Page.new(@@alingment, 0)
+   end
 
    def self.alingment=(@@alingment : Alingment)
       cur_page() = @alingment

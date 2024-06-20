@@ -301,5 +301,32 @@ module Insts
          ->(arg : String) { }
       ],
 
+      "set" => [
+         ->(arg : String) {
+            val = arg.split ";"
+
+            if val.size != 2
+               abort "needs two ';' separated arguments, but '#{arg}' given " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Data.vars[val[0]] = val[1]
+            nil
+         },
+         ->(arg : String) {  }
+      ],
+
+      "val" => [
+         ->(arg : String) {
+            unless Data.vars.has_key? arg
+               abort "unset variable #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Outcome.append Data.vars[arg]
+         },
+         ->(arg : String) { }
+      ],
+
    }
 end

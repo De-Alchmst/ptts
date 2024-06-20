@@ -34,16 +34,18 @@ def process_file(filename : String)
          # split into instructions
          (2..line.size-1).each { |i|
             case "#{line[i]}"
-            when '{'
+            when "{"
                enclose_level += 1
-            when '}'
+            when "}"
                enclose_level -= 1
             when /[;\s]/
                if enclose_level == 0
                   inst = line[prev+1..i-1] # entire instruction
 
                   # get argument
-                  arg_match = inst.match /\{(.*?)\}/
+                  # shamelessly taken fom here
+                  # https://stackoverflow.com/questions/19486686/recursive-nested-matching-pairs-of-curly-braces-in-ruby-regex
+                  arg_match = inst.match /(?=\{((?:[^{} ]*?|\{\g<1>\})*?)\})/
                   # only the capture if found
                   arg = arg_match ? arg_match[1] : ""
 

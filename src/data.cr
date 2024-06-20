@@ -2,7 +2,7 @@ module Data
    class_property term_width, term_height, plaintext, file_line_count, \
       filename, color_mode, prev_colors, indent_level, indent_level_length, \
       indent_extra, output_mode, scroll, is_bold, is_italic, is_underlined, \
-      is_blink, search_list, search_index
+      is_blink, search_list, search_index, vars
    @@term_width : Int32 = `tput cols`.to_i
    @@term_height : Int32 = `tput lines`.to_i
    @@plaintext = false
@@ -21,6 +21,7 @@ module Data
    @@is_blink = false
    @@search_list = Array(SearchItem).new
    @@search_index = 0
+   @@vars = {} of String => String
 end
 
 class SearchItem

@@ -1,5 +1,6 @@
 require "./outcome.cr"
 require "./data.cr"
+require "./inst_parse.cr"
 
 def extra_space
    if Outcome.curr_width != Data.term_width && Outcome.curr_width > 0 \
@@ -209,7 +210,7 @@ module Insts
             Data.prev_colors[Data.color_mode] = c
             nil
          },
-         ->(arg : String) { }
+         ->(arg : String) {}
       ],
 
       "setindl" => [
@@ -236,7 +237,7 @@ module Insts
             Outcome.reset_indent
             nil
          },
-         ->(arg : String) { }
+         ->(arg : String) {}
       ],
 
       "bindl" => [
@@ -264,7 +265,7 @@ module Insts
             Outcome.new_block
             nil
          },
-         ->(arg : String) { }
+         ->(arg : String) {}
       ],
 
       "indl" => [
@@ -298,7 +299,7 @@ module Insts
                            + Data.indent_extra
             nil
          },
-         ->(arg : String) { }
+         ->(arg : String) {}
       ],
 
       "set" => [
@@ -313,7 +314,7 @@ module Insts
             Data.vars[val[0]] = val[1]
             nil
          },
-         ->(arg : String) {  }
+         ->(arg : String) {}
       ],
 
       "val" => [
@@ -325,8 +326,20 @@ module Insts
 
             Outcome.append Data.vars[arg]
          },
-         ->(arg : String) { }
+         ->(arg : String) {}
       ],
 
+      "eval" => [
+         ->(arg : String) {
+            unless Data.vars.has_key? arg
+               abort "unset variable #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            parse_insts "@#{Data.vars[arg]} "
+            nil
+         },
+         ->(arg : String) {}
+      ],
    }
 end

@@ -1,6 +1,7 @@
 require "./data.cr"
 require "./outcome.cr"
 require "./instructions.cr"
+require "./inst_parse.cr"
 
 def process_file(filename : String)
    Outcome.init
@@ -21,50 +22,18 @@ def process_file(filename : String)
    lines.size.times { |i|
       line = lines[i].strip + " "
       Data.file_line_count = i + 1
+      Data.instructions = [] of Array(String)
 
       unless line.starts_with?("@") && line.size > 1
          Outcome.append line
       else
 
-         instructions = [] of Array(String)
-         enclose_level = 0 # for nested '{' '}'
-         prev = 0
-         txt = ""
-
-         # split into instructions
-         (2..line.size-1).each { |i|
-            case "#{line[i]}"
-            when "{"
-               enclose_level += 1
-            when "}"
-               enclose_level -= 1
-            when /[;\s]/
-               if enclose_level == 0
-                  inst = line[prev+1..i-1] # entire instruction
-
-                  # get argument
-                  # shamelessly taken fom here
-                  # https://stackoverflow.com/questions/19486686/recursive-nested-matching-pairs-of-curly-braces-in-ruby-regex
-                  arg_match = inst.match /(?=\{((?:[^{} ]*?|\{\g<1>\})*?)\})/
-                  # only the capture if found
-                  arg = arg_match ? arg_match[1] : ""
-
-                  instructions << [inst.sub(/\{.*/, ""), arg]
-
-                  if line[i] == ';'
-                     prev = i
-                  else
-                     txt = line[i+1..]
-                     break
-                  end
-               end
-            end
-         }
+         txt = parse_insts line
 
          # CALL BEFORE ADDTING TEXT #
          cmnt = false
          # puts instructions
-         instructions.each { |inst|
+         Data.instructions.each { |inst|
             if inst[0] == "cmnt"
                cmnt = true
                break
@@ -105,7 +74,7 @@ def process_file(filename : String)
 
 
          # CALL AFTER ADDTING TEXT #
-         instructions.each { |inst|
+         Data.instructions.each { |inst|
             if Insts.no_arg.has_key? inst[0]
                Insts.no_arg[inst[0]][1].call
             else

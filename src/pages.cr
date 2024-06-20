@@ -108,6 +108,11 @@ class Page
 
       @skip_space = false
 
+      if Data.hardnl
+         @lines << Line.new(" " * @indent, @alingment)
+         @curr_width = @indent
+      end
+
       # for when multipe pages will be used
       return ""
    end

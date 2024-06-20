@@ -161,6 +161,16 @@ module Insts
          -> {}
       ],
 
+      "hardnl" => [
+         -> {Data.hardnl = true; nil},
+         -> {}
+      ],
+
+      "softnl" => [
+         -> {Data.hardnl = false; nil},
+         -> {}
+      ],
+
    }
 
    @@with_arg = {

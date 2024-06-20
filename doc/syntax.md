@@ -73,10 +73,10 @@ indented by extra 'num' spaces, negative num decreases indent
 - @hardnl - stops joining lines like normal and seperates blocks by single newline
 - @softnl - returns to joining lines like normal
 
-- @bnumbr - begins numbering lines
-- @enumbr - ends numbering lines
+- @bnum - begins numbering lines
+- @enum - ends numbering lines
 
-- @wrap - numbers l blocks instead of lines
+- @wrap - numbers blocks instead of lines
 - @nowrap - returns to numbering each line normally
 
 - @setfootnote{marks} - sets ';' separated list of footnote marks, once last on

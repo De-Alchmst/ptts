@@ -171,6 +171,19 @@ module Insts
          -> {}
       ],
 
+      "bnum" => [
+         -> {
+            Data.line_number = 1
+            Data.number_lines = true
+            nil},
+         -> {}
+      ],
+
+      "enum" => [
+         -> {Data.number_lines = false; nil},
+         -> {}
+      ],
+
    }
 
    @@with_arg = {

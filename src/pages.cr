@@ -4,13 +4,27 @@ enum Alingment
    Right
 end
 
+def get_num
+   s = Data.line_number.to_s
+   padding = Data.num_width - s.size
+   if padding < 0
+      abort "number while numbering to high"
+   end
+   " " * padding + s + " "
+end
+
+def num_w
+   Data.number_lines ? Data.num_width + 1 : 0
+end
+
 class Line
    property text, alingment, empty
    def initialize(@text : String, @alingment : Alingment)
       unless Data.plaintext
          text_leading_whitespace = @text.sub /\S.*/, ""
          text_contents = @text.sub /^\s+/, ""
-         @text = "\x1b[0m" + text_leading_whitespace \
+         @text = "\x1b[0m" + (Data.number_lines ? get_num : "") \
+               + text_leading_whitespace \
                + "\x1b[#{Data.prev_colors[:foreground]}" \
                + ";#{Data.prev_colors[:background]}" \
                + (Data.is_bold ? ";1" : "") \
@@ -18,6 +32,8 @@ class Line
                + (Data.is_underlined ? ";4" : "") \
                + (Data.is_blink ? ";5" : "") \
                + "m" + text_contents
+
+         Data.line_number += 1
       end
       @empty = true
    end
@@ -50,7 +66,7 @@ class Page
       if text.empty?
          unless @lines.last.empty && @lines.size > 1
             @lines << Line.new(" " * @indent, @alingment)
-            @curr_width = @indent
+            @curr_width = @indent + num_w
          end
          return ""
       end
@@ -100,7 +116,7 @@ class Page
          end
 
          # call again with rest of words
-         @curr_width = @indent
+         @curr_width = @indent + num_w
          @lines << Line.new(" " * @indent, @alingment)
 
          append words.join(" ")
@@ -110,7 +126,7 @@ class Page
 
       if Data.hardnl
          @lines << Line.new(" " * @indent, @alingment)
-         @curr_width = @indent
+         @curr_width = @indent + num_w
       end
 
       # for when multipe pages will be used
@@ -129,7 +145,7 @@ class Page
       else
          @lines << Line.new(" " * @indent, @alingment)
       end
-      @curr_width = @indent
+      @curr_width = @indent + num_w
 
       false
    end
@@ -137,7 +153,7 @@ class Page
    def reset_indent
       if @lines.last.empty
          @lines.last.text = @lines.last.text.strip + " " * @indent
-         @curr_width = @indent
+         @curr_width = @indent + num_w
       end
    end
 end

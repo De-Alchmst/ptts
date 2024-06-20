@@ -2,7 +2,8 @@ module Data
    class_property term_width, term_height, plaintext, file_line_count, \
       filename, color_mode, prev_colors, indent_level, indent_level_length, \
       indent_extra, output_mode, scroll, is_bold, is_italic, is_underlined, \
-      is_blink, search_list, search_index, vars, instructions, hardnl
+      is_blink, search_list, search_index, vars, instructions, hardnl,
+      number_lines, line_number, num_width
    @@term_width : Int32 = `tput cols`.to_i
    @@term_height : Int32 = `tput lines`.to_i
    @@plaintext = false
@@ -24,6 +25,9 @@ module Data
    @@vars = {} of String => String
    @@instructions = [] of Array(String)
    @@hardnl = false
+   @@number_lines = false
+   @@line_number = 1
+   @@num_width = 3
 end
 
 class SearchItem

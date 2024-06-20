@@ -64,7 +64,7 @@ class Page
 
       # empty lines
       if text.empty?
-         unless @lines.last.empty && @lines.size > 1
+         unless @lines.last.empty
             @lines << Line.new(" " * @indent, @alingment)
             @curr_width = @indent + num_w
          end

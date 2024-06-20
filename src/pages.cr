@@ -20,7 +20,7 @@ end
 class Line
    property text, alingment, empty
    def initialize(@text : String, @alingment : Alingment)
-      unless Data.plaintext
+      if !Data.plaintext
          text_leading_whitespace = @text.sub /\S.*/, ""
          text_contents = @text.sub /^\s+/, ""
          @text = "\x1b[0m" + (Data.number_lines ? get_num : "") \
@@ -32,9 +32,11 @@ class Line
                + (Data.is_underlined ? ";4" : "") \
                + (Data.is_blink ? ";5" : "") \
                + "m" + text_contents
-
-         Data.line_number += 1
+      elsif Data.number_lines
+         @text = get_num + @text
       end
+
+      Data.line_number += 1
       @empty = true
    end
 end
@@ -140,19 +142,24 @@ class Page
    end
 
    def new_block
-      if @lines.last.empty
-         @lines.last.text = @lines.last.text.strip + " " * @indent
-      else
-         @lines << Line.new(" " * @indent, @alingment)
-      end
+      @lines.pop if @lines.last.empty
+
+      @lines << Line.new(" " * @indent, @alingment)
       @curr_width = @indent + num_w
 
-      false
+      nil
    end
 
    def reset_indent
       if @lines.last.empty
-         @lines.last.text = @lines.last.text.strip + " " * @indent
+         if Data.number_lines
+            num = @lines.last.text.match(/(..\d )/).as(Regex::MatchData)[1]
+            rest = @lines.last.text.match(/..\d (.*)/).as(Regex::MatchData)[1]
+
+            @lines.last.text = num + rest.strip + " " * @indent
+         else
+            @lines.last.text = @lines.last.text.strip + " " * @indent
+         end
          @curr_width = @indent + num_w
       end
    end

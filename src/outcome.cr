@@ -71,6 +71,7 @@ module Outcome
       if eop
          @@pages << Page.new(@@alingment, @@indent)
       end
+      nil
    end
 
    def self.reset_indent

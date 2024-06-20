@@ -175,12 +175,16 @@ module Insts
          -> {
             Data.line_number = 1
             Data.number_lines = true
-            nil},
+            Outcome.new_block
+         },
          -> {}
       ],
 
       "enum" => [
-         -> {Data.number_lines = false; nil},
+         -> {
+            Data.number_lines = false
+            Outcome.new_block
+         },
          -> {}
       ],
 

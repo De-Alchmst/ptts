@@ -10,6 +10,57 @@ def extra_space
    end
 end
 
+def set_indent_level(arg : String, reset : Bool)
+   val = arg.match /^\-?\d+$/
+
+   unless val
+      abort "not a whole number #{arg} " \
+         + "in file: #{Data.filename} at line #{Data.file_line_count}"
+   end
+
+   if reset
+      Data.indent_level = arg.to_i
+   else
+      Data.indent_level += arg.to_i
+   end
+   Data.indent_level = 0 if Data.indent_level < 0
+
+   Outcome.indent = Data.indent_level * Data.indent_level_length \
+      + Data.indent_extra
+
+   Outcome.indent = 0 if Outcome.indent < 0
+
+   if Outcome.indent >= Data.term_width
+      abort "indent too large: #{val} " \
+         + "in file: #{Data.filename} at line #{Data.file_line_count}"
+   end
+end
+
+def set_indent_extra(arg : String, reset : Bool)
+   val = arg.match /^\-?\d+$/
+
+   unless val
+      abort "not a whole number #{arg} " \
+         + "in file: #{Data.filename} at line #{Data.file_line_count}"
+   end
+
+   if reset
+      Data.indent_extra = arg.to_i
+   else
+      Data.indent_extra += arg.to_i
+   end
+
+   Outcome.indent = Data.indent_level * Data.indent_level_length \
+      + Data.indent_extra
+
+   Outcome.indent = 0 if Outcome.indent < 0
+
+   if Outcome.indent >= Data.term_width
+      abort "indent too large: #{val} " \
+         + "in file: #{Data.filename} at line #{Data.file_line_count}"
+   end
+end
+
 module Insts
    class_property no_arg, with_arg
 
@@ -288,25 +339,7 @@ module Insts
 
       "bindl" => [
          ->(arg : String) {
-            val = arg.match /^\-?\d+$/
-
-            unless val
-               abort "not a whole number #{arg} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
-
-            Data.indent_level += arg.to_i
-            Data.indent_level = 0 if Data.indent_level < 0
-
-            Outcome.indent = Data.indent_level * Data.indent_level_length \
-                           + Data.indent_extra
-
-            Outcome.indent = 0 if Outcome.indent < 0
-
-            if Outcome.indent >= Data.term_width
-               abort "indent too large: #{val} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
+            set_indent_level arg, false
 
             Outcome.new_block
             nil
@@ -316,25 +349,7 @@ module Insts
 
       "rindl" => [
          ->(arg : String) {
-            val = arg.match /^\-?\d+$/
-
-            unless val
-               abort "not a whole number #{arg} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
-
-            Data.indent_level = arg.to_i
-            Data.indent_level = 0 if Data.indent_level < 0
-
-            Outcome.indent = Data.indent_level * Data.indent_level_length \
-                           + Data.indent_extra
-
-            Outcome.indent = 0 if Outcome.indent < 0
-
-            if Outcome.indent >= Data.term_width
-               abort "indent too large: #{val} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
+            set_indent_level arg, true
 
             Outcome.new_block
             nil
@@ -344,25 +359,7 @@ module Insts
 
       "softbindl" => [
          ->(arg : String) {
-            val = arg.match /^\-?\d+$/
-
-            unless val
-               abort "not a whole number #{arg} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
-
-            Data.indent_level += arg.to_i
-            Data.indent_level = 0 if Data.indent_level < 0
-
-            Outcome.indent = Data.indent_level * Data.indent_level_length \
-                           + Data.indent_extra
-
-            Outcome.indent = 0 if Outcome.indent < 0
-
-            if Outcome.indent >= Data.term_width
-               abort "indent too large: #{val} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
+            set_indent_level arg, false
             nil
          },
          ->(arg : String) {}
@@ -370,29 +367,9 @@ module Insts
 
       "indl" => [
          ->(arg : String) {
-            val = arg.match /^\-?\d+$/
-
-            unless val
-               abort "not a whole number #{arg} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
-
-            delta = arg.to_i
-
             prev_level = Data.indent_level
 
-            Data.indent_level += delta
-            Data.indent_level = 0 if Data.indent_level < 0
-
-            Outcome.indent = Data.indent_level * Data.indent_level_length \
-                           + Data.indent_extra
-
-            Outcome.indent = 0 if Outcome.indent < 0
-
-            if Outcome.indent >= Data.term_width
-               abort "indent too large: #{val} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
+            set_indent_level arg, false
 
             Outcome.new_block
 
@@ -406,24 +383,7 @@ module Insts
 
       "bindn" => [
          ->(arg : String) {
-            val = arg.match /^\-?\d+$/
-
-            unless val
-               abort "not a whole number #{arg} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
-
-            Data.indent_extra += arg.to_i
-
-            Outcome.indent = Data.indent_level * Data.indent_level_length \
-                           + Data.indent_extra
-
-            Outcome.indent = 0 if Outcome.indent < 0
-
-            if Outcome.indent >= Data.term_width
-               abort "indent too large: #{val} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
+            set_indent_extra arg, false
 
             Outcome.new_block
             nil
@@ -433,24 +393,7 @@ module Insts
 
       "rindn" => [
          ->(arg : String) {
-            val = arg.match /^\-?\d+$/
-
-            unless val
-               abort "not a whole number #{arg} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
-
-            Data.indent_extra = arg.to_i
-
-            Outcome.indent = Data.indent_level * Data.indent_level_length \
-                           + Data.indent_extra
-
-            Outcome.indent = 0 if Outcome.indent < 0
-
-            if Outcome.indent >= Data.term_width
-               abort "indent too large: #{val} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
+            set_indent_extra arg, true
 
             Outcome.new_block
             nil
@@ -460,24 +403,7 @@ module Insts
 
       "softbindn" => [
          ->(arg : String) {
-            val = arg.match /^\-?\d+$/
-
-            unless val
-               abort "not a whole number #{arg} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
-
-            Data.indent_extra += arg.to_i
-
-            Outcome.indent = Data.indent_level * Data.indent_level_length \
-                           + Data.indent_extra
-
-            Outcome.indent = 0 if Outcome.indent < 0
-
-            if Outcome.indent >= Data.term_width
-               abort "indent too large: #{val} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
+            set_indent_extra arg, false
             nil
          },
          ->(arg : String) {}
@@ -485,28 +411,9 @@ module Insts
 
       "indn" => [
          ->(arg : String) {
-            val = arg.match /^\-?\d+$/
-
-            unless val
-               abort "not a whole number #{arg} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
-
-            delta = arg.to_i
-
             prev_extra = Data.indent_extra
 
-            Data.indent_extra += arg.to_i
-
-            Outcome.indent = Data.indent_level * Data.indent_level_length \
-                           + Data.indent_extra
-
-            Outcome.indent = 0 if Outcome.indent < 0
-
-            if Outcome.indent >= Data.term_width
-               abort "indent too large: #{val} " \
-                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
-            end
+            set_indent_extra arg, false
 
             Outcome.new_block
 

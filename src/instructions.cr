@@ -368,5 +368,23 @@ module Insts
          },
          ->(arg : String) {}
       ],
+
+      "vtab" => [
+         ->(arg : String) {
+            val = arg.match /^\d+$/
+
+            unless val
+               abort "not a whole positive number #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            num = arg.to_i
+            num += 1 unless Outcome.pages.last.lines.last.empty
+            num.times {
+               Outcome.pages.last.lines << Line.new("", Outcome.alingment)
+            }
+         },
+         ->(arg : String) {}
+      ],
    }
 end

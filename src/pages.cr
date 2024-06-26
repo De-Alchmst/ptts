@@ -4,6 +4,7 @@ enum Alingment
    Right
 end
 
+# get number part if line numbering active
 def get_num
    s = Data.line_number.to_s
    padding = Data.num_width - s.size
@@ -13,6 +14,7 @@ def get_num
    " " * padding + s + " "
 end
 
+# get width of number part if numbering
 def num_w
    Data.number_lines ? Data.num_width + 1 : 0
 end
@@ -20,18 +22,28 @@ end
 class Line
    property text, alingment, empty
    def initialize(@text : String, @alingment : Alingment)
+      # if formatting #
       if !Data.plaintext
+         # split to indent and contents
          text_leading_whitespace = @text.sub /\S.*/, ""
          text_contents = @text.sub /^\s+/, ""
+
+         # reset formatting and add line number
          @text = "\x1b[0m" + (Data.number_lines ? get_num : "") \
+               # add the indent
                + text_leading_whitespace \
+               # set colors
                + "\x1b[#{Data.prev_colors[:foreground]}" \
                + ";#{Data.prev_colors[:background]}" \
+               # set additional formatting
                + (Data.is_bold ? ";1" : "") \
                + (Data.is_italic ? ";3" : "") \
                + (Data.is_underlined ? ";4" : "") \
                + (Data.is_blink ? ";5" : "") \
+               # close escape and contents
                + "m" + text_contents
+
+      # else just numbers #
       elsif Data.number_lines
          @text = get_num + @text
       end
@@ -141,6 +153,7 @@ class Page
       @lines.last.text += text
    end
 
+   # make sure last line is empty #
    def new_block
       @lines.pop if @lines.last.empty
 

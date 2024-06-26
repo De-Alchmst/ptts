@@ -6,6 +6,8 @@ require "term-reader"
 
 def display()
    # get texts #
+   prev_name = Data.filename
+
    normal_lines = [] of String
    Outcome.pages.each { |page|
       page.lines.each { |line|
@@ -17,6 +19,8 @@ def display()
    get_meta.each { |line|
       meta_lines << line.text
    }
+
+   Data.filename = prev_name
 
    Data.current_lines = normal_lines
 
@@ -122,11 +126,13 @@ def display()
                normal_scroll = Data.scroll
                Data.scroll = meta_scroll
                Data.current_lines = meta_lines
+               Data.filename = "meta"
             else
                current_lines = :normal
                meta_scroll = Data.scroll
                Data.scroll = normal_scroll
                Data.current_lines = normal_lines
+               Data.filename = prev_name
             end
       end
 

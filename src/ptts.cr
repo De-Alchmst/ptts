@@ -86,4 +86,14 @@ end
 # PROCESS FILE CONTENTS #
 #########################
 process_file filename
-display
+
+if Data.output_mode == :stdout
+   Outcome.pages.each { |page|
+      page.lines.each { |line|
+         puts line.text
+      }
+   }
+
+elsif Data.output_mode == :tui
+   display
+end

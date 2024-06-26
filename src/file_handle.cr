@@ -3,7 +3,7 @@ require "./outcome.cr"
 require "./instructions.cr"
 require "./inst_parse.cr"
 
-def process_file(filename : String)
+def process_file(filename : String, contents="")
    Outcome.init
    Data.filename = filename
 
@@ -11,10 +11,16 @@ def process_file(filename : String)
    # READ THE FILE #
    #################
 
-   abort "file not found: #{filename}" unless File.exists? filename
-   abort "file not readable: #{filename}" unless File.readable? filename
+   lines = [] of String
 
-   lines = File.read(filename).strip.split /\n/
+   if contents.empty?
+      abort "file not found: #{filename}" unless File.exists? filename
+      abort "file not readable: #{filename}" unless File.readable? filename
+
+      lines = File.read(filename).strip.split /\n/
+   else
+      lines = contents.strip.split /\n/
+   end
 
    ##############
    # GO THROUGH #

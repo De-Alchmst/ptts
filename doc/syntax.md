@@ -25,14 +25,19 @@ ptts implements pages. how are they implemented depends on implementation
 
 - @indl{num} - sets curent line as block beginning and indents it by extra 'num'
 levels, rest of block will be not affected, negative num decreses indent
+- @brndl{num} - sets indent level from now on
 - @bindl{num} - sets curent line as block beginning and all text will be
 indented by extra 'num' levels, negative num decreases indent
+- @softbindl{num} - adds indent without breaking block
 - @indn{num} - sets curent line as block beginning and indents it by extra 'num'
 spaces. rest of block will be not affected, negative num decreases indent
+- @rindn{num} - sets extra space indent
 - @bindn{num} - sets curent line as block beginning and all text will be
 indented by extra 'num' spaces, negative num decreases indent
+- @softbindn{num} - adds extra indent without breaking block
 
 - @line - adds full width line
+- @tab{num} - adds 'num' spaces
 - @vtab{num} - adds 'num' newlines, also breaks blocks
 
 - @pgbr - pagebreak

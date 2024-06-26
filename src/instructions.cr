@@ -280,7 +280,7 @@ module Insts
                    + "in file: #{Data.filename} at line #{Data.file_line_count}"
             end
 
-            Outcome.reset_indent
+            Outcome.new_block
             nil
          },
          ->(arg : String) {}
@@ -309,6 +309,60 @@ module Insts
             end
 
             Outcome.new_block
+            nil
+         },
+         ->(arg : String) {}
+      ],
+
+      "rindl" => [
+         ->(arg : String) {
+            val = arg.match /^\-?\d+$/
+
+            unless val
+               abort "not a whole number #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Data.indent_level = arg.to_i
+            Data.indent_level = 0 if Data.indent_level < 0
+
+            Outcome.indent = Data.indent_level * Data.indent_level_length \
+                           + Data.indent_extra
+
+            Outcome.indent = 0 if Outcome.indent < 0
+
+            if Outcome.indent >= Data.term_width
+               abort "indent too large: #{val} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Outcome.new_block
+            nil
+         },
+         ->(arg : String) {}
+      ],
+
+      "softbindl" => [
+         ->(arg : String) {
+            val = arg.match /^\-?\d+$/
+
+            unless val
+               abort "not a whole number #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Data.indent_level += arg.to_i
+            Data.indent_level = 0 if Data.indent_level < 0
+
+            Outcome.indent = Data.indent_level * Data.indent_level_length \
+                           + Data.indent_extra
+
+            Outcome.indent = 0 if Outcome.indent < 0
+
+            if Outcome.indent >= Data.term_width
+               abort "indent too large: #{val} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
             nil
          },
          ->(arg : String) {}
@@ -372,6 +426,58 @@ module Insts
             end
 
             Outcome.new_block
+            nil
+         },
+         ->(arg : String) {}
+      ],
+
+      "rindn" => [
+         ->(arg : String) {
+            val = arg.match /^\-?\d+$/
+
+            unless val
+               abort "not a whole number #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Data.indent_extra = arg.to_i
+
+            Outcome.indent = Data.indent_level * Data.indent_level_length \
+                           + Data.indent_extra
+
+            Outcome.indent = 0 if Outcome.indent < 0
+
+            if Outcome.indent >= Data.term_width
+               abort "indent too large: #{val} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Outcome.new_block
+            nil
+         },
+         ->(arg : String) {}
+      ],
+
+      "softbindn" => [
+         ->(arg : String) {
+            val = arg.match /^\-?\d+$/
+
+            unless val
+               abort "not a whole number #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Data.indent_extra += arg.to_i
+
+            Outcome.indent = Data.indent_level * Data.indent_level_length \
+                           + Data.indent_extra
+
+            Outcome.indent = 0 if Outcome.indent < 0
+
+            if Outcome.indent >= Data.term_width
+               abort "indent too large: #{val} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
             nil
          },
          ->(arg : String) {}
@@ -470,6 +576,27 @@ module Insts
          ->(arg : String) {}
       ],
 
+      "tab" => [
+         ->(arg : String) {
+            val = arg.match /^\d+$/
+
+            unless val
+               abort "not a whole positive number #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            num = arg.to_i
+            if Outcome.pages.last.curr_width + num <= Data.term_width
+               Outcome.pages.last.lines.last.text += " " * num
+               Outcome.pages.last.curr_width += num
+            else
+               Outcome.new_block
+            end
+            nil
+         },
+         ->(arg : String) {}
+      ],
+
       "startswith" => [
          ->(arg : String) {
             Data.starts_with = arg
@@ -478,6 +605,23 @@ module Insts
                    + "in file: #{Data.filename} at line #{Data.file_line_count}"
             end
             Outcome.new_block
+         },
+         ->(arg : String) {}
+      ],
+
+      "meta" => [
+         ->(arg : String) {
+            val = arg.split ";"
+
+            val.each { |v|
+               data = v.split ":"
+               if data.size != 2
+                  abort "needs two ':' separated arguments, but '#{arg}' given " \
+                      + "in file: #{Data.filename} at line #{Data.file_line_count}"
+               end
+
+               Data.meta[data[0]] = data[1]
+            }
          },
          ->(arg : String) {}
       ],

@@ -3,7 +3,7 @@ module Data
       filename, color_mode, prev_colors, indent_level, indent_level_length, \
       indent_extra, output_mode, scroll, is_bold, is_italic, is_underlined, \
       is_blink, search_list, search_index, vars, instructions, hardnl,
-      number_lines, line_number, num_width, starts_with
+      number_lines, line_number, num_width, starts_with, meta, current_lines
    @@term_width : Int32 = `tput cols`.to_i
    @@term_height : Int32 = `tput lines`.to_i
    @@plaintext = false
@@ -12,7 +12,7 @@ module Data
    @@color_mode = :foreground
    @@prev_colors = {:foreground => "39", :background => "49"}
    @@indent_level = 0
-   @@indent_level_length = 0
+   @@indent_level_length = 1
    @@indent_extra = 0 # extralevel independent indent
    @@output_mode = :tui
    @@scroll = 0
@@ -29,6 +29,23 @@ module Data
    @@line_number = 1
    @@num_width = 3
    @@starts_with = ""
+   @@meta = {} of String => String
+   @@current_lines = [] of String
+end
+
+def reset_data
+   Data.color_mode = :foreground
+   Data.prev_colors = {:foreground => "39", :background => "49"}
+   Data.indent_level = 0
+   Data.indent_level_length = 1
+   Data.indent_extra = 0 # extralevel independent indent
+   Data.is_bold = false
+   Data.is_italic = false
+   Data.is_underlined = false
+   Data.is_blink = false
+   Data.hardnl = false
+   Data.number_lines = false
+   Data.starts_with = ""
 end
 
 class SearchItem

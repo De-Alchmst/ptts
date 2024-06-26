@@ -1,19 +1,28 @@
 require "./data.cr"
 require "./outcome.cr"
+require "./meta_process.cr"
 
 require "term-reader"
 
 def display()
-
-   if Data.output_mode == :stdout
-      Outcome.pages.each { |page|
-         page.lines.each { |line|
-            puts line.text
-         }
+   # get texts #
+   normal_lines = [] of String
+   Outcome.pages.each { |page|
+      page.lines.each { |line|
+         normal_lines << line.text
       }
+   }
 
-      exit
-   end
+   meta_lines = [] of String
+   get_meta.each { |line|
+      meta_lines << line.text
+   }
+
+   Data.current_lines = normal_lines
+
+   meta_scroll = 0
+   normal_scroll = 0
+   current_lines = :normal
 
    # switch to alternate buffer
    print "\x1b[?1049h\x1b[H"
@@ -61,7 +70,7 @@ def display()
                prev_key = "g"
             end
          when "G", "[4~"
-            new = Outcome.pages[0].lines.size - Data.term_height + 1
+            new = Data.current_lines.size - Data.term_height + 1
             Data.scroll = new if new > 0
 
          # search
@@ -106,6 +115,19 @@ def display()
             show_search
             next
 
+         # toggle meta
+         when "m"
+            if current_lines == :normal
+               current_lines = :meta
+               normal_scroll = Data.scroll
+               Data.scroll = meta_scroll
+               Data.current_lines = meta_lines
+            else
+               current_lines = :normal
+               meta_scroll = Data.scroll
+               Data.scroll = normal_scroll
+               Data.current_lines = normal_lines
+            end
       end
 
       prev_key = "" unless char = "g"
@@ -128,10 +150,10 @@ def draw_screen
    # display lines #
    print "\x1b[H"
    (0..Data.term_height-2).each { |i|
-      if Data.scroll+i >= Outcome.pages[0].lines.size
+      if Data.scroll+i >= Data.current_lines.size
          break
       end
-      puts Outcome.pages[0].lines[Data.scroll + i].text
+      puts Data.current_lines[Data.scroll + i]
    }
 end
 
@@ -169,9 +191,9 @@ def search(prompt)
    prom = Regex.new(prompt.gsub /\n/, "")
    num = 0
    # go through lines #
-   (0..Outcome.pages[0].lines.size-1).each { |i|
+   (0..Data.current_lines.size-1).each { |i|
       # line stripped of all escape sequences
-      ln = Outcome.pages[0].lines[i].text.gsub Regex.new("\x1b\\[.*?m"), ""
+      ln = Data.current_lines[i].gsub Regex.new("\x1b\\[.*?m"), ""
 
       offset = 0
       while m = prom.match(ln, offset)

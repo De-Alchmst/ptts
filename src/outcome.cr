@@ -15,10 +15,20 @@ module Outcome
 
    @@indent = 0
 
-   @@pages = Array(Page).new
+   @@pages = [] of Page
 
    def self.init
-      @@pages.push Page.new(@@alingment, 0)
+      @@pages = [Page.new(@@alingment, 0)]
+      @@alingment = Alingment::Left
+
+      @@fg = "39"
+      @@bg = "39"
+
+      @@bold = false
+      @@italic = false
+      @@underline = false
+
+      @@indent = 0
    end
 
    def self.alingment=(@@alingment : Alingment)

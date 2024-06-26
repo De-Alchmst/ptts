@@ -61,6 +61,47 @@ def set_indent_extra(arg : String, reset : Bool)
    end
 end
 
+def get_color(arg : String)
+   c = ""
+   if Data.color_mode == :foreground
+      c = Colors.fg[arg] if Colors.fg.has_key? arg
+   else
+      c = Colors.bg[arg] if Colors.bg.has_key? arg
+   end
+
+   if c.empty?
+      abort "unknown color: #{arg} in file: #{Data.filename} " \
+         + "at line #{Data.file_line_count}"
+   end
+
+   return c
+end
+
+def validate_rgb(arg : String)
+   colors = arg.split ";"
+
+   if colors.size != 3
+      abort "needs three ';' separated arguments, but '#{arg}' given "\
+         + "in file: #{Data.filename} at line #{Data.file_line_count}"
+   end
+
+   colors.each {|c|
+      unless c.match(/^\d+$/) && c.to_i <= 255
+         abort "needs positive number under 256, but '#{c}' given " \
+            + "in file: #{Data.filename} at line #{Data.file_line_count}"
+      end
+   }
+end
+
+def hex2rgb(arg : String)
+   unless arg.match /^[0-9a-fA-f]{6}$/
+      abort "needs 6 hex digits, but '#{arg}' given " \
+         + "in file: #{Data.filename} at line #{Data.file_line_count}"
+   end
+
+   return "#{arg[0..1].to_i 16};#{arg[2..3].to_i 16};#{arg[4..5].to_i 16}"
+end
+
 module Insts
    class_property no_arg, with_arg
 
@@ -264,21 +305,47 @@ module Insts
       "cl" => [
          ->(arg : String) {
             return if Data.plaintext
-
-            c = ""
-            if Data.color_mode == :foreground
-               c = Colors.fg[arg] if Colors.fg.has_key? arg
-            else
-               c = Colors.bg[arg] if Colors.bg.has_key? arg
-            end
-
-            if c.empty?
-               abort "unknown color: #{arg} in file: #{Data.filename} " \
-                  + "at line #{Data.file_line_count}"
-            end
+            c = get_color arg
 
             extra_space
             Outcome.insert "\x1b[#{c}m"
+         },
+         ->(arg : String) {
+            return if Data.plaintext
+            Outcome.insert "\x1b[#{Data.prev_colors[Data.color_mode]}m"
+         }
+      ],
+
+      "rgb" => [
+         ->(arg : String) {
+            return if Data.plaintext
+            validate_rgb arg
+
+            extra_space
+            if Data.color_mode == :foreground
+               Outcome.insert "\x1b[38;2;#{arg}m"
+            else
+               Outcome.insert "\x1b[48;2;#{arg}m"
+            end
+         },
+         ->(arg : String) {
+            return if Data.plaintext
+            Outcome.insert "\x1b[#{Data.prev_colors[Data.color_mode]}m"
+         }
+      ],
+
+      "hex" => [
+         ->(arg : String) {
+            return if Data.plaintext
+            c = hex2rgb arg    
+
+            extra_space
+            if Data.color_mode == :foreground
+               Outcome.insert "\x1b[38;2;#{c}m"
+            else
+               Outcome.insert "\x1b[48;2;#{c}m"
+            end
+
          },
          ->(arg : String) {
             return if Data.plaintext
@@ -290,21 +357,47 @@ module Insts
          ->(arg : String) {
             return if Data.plaintext
 
-            c = ""
-            if Data.color_mode == :foreground
-               c = Colors.fg[arg] if Colors.fg.has_key? arg
-            else
-               c = Colors.bg[arg] if Colors.bg.has_key? arg
-            end
-
-            if c.empty?
-               abort "unknown color: #{arg} in file: #{Data.filename} " \
-                  + "at line #{Data.file_line_count}"
-            end
+            c = get_color arg
 
             extra_space
             Outcome.insert "\x1b[#{c}m"
             Data.prev_colors[Data.color_mode] = c
+            nil
+         },
+         ->(arg : String) {}
+      ],
+
+      "brgb" => [
+         ->(arg : String) {
+            return if Data.plaintext
+            validate_rgb arg
+
+            extra_space
+            if Data.color_mode == :foreground
+               Outcome.insert "\x1b[38;2;#{arg}m"
+               Data.prev_colors[:foreground] = "38;2;#{arg}"
+            else
+               Outcome.insert "\x1b[48;2;#{arg}m"
+               Data.prev_colors[:background] = "48;2;#{arg}"
+            end
+            nil
+         },
+         ->(arg : String) {}
+      ],
+
+      "bhex" => [
+         ->(arg : String) {
+            return if Data.plaintext
+            c = hex2rgb arg
+
+            extra_space
+            if Data.color_mode == :foreground
+               Outcome.insert "\x1b[38;2;#{c}m"
+               Data.prev_colors[:foreground] = "38;2;#{c}"
+            else
+               Outcome.insert "\x1b[48;2;#{c}m"
+               Data.prev_colors[:background] = "48;2;#{c}"
+            end
             nil
          },
          ->(arg : String) {}

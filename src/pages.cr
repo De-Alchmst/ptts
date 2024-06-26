@@ -54,7 +54,7 @@ class Line
 end
 
 class Page
-   property indent, skip_space, lines, curr_width
+   property indent, skip_space, lines, curr_width, default_width
 
    @curr_width = 0
    @skip_space = false

@@ -19,7 +19,7 @@ def parse_insts(line)
             # get argument
             # shamelessly taken fom here
             # https://stackoverflow.com/questions/19486686/recursive-nested-matching-pairs-of-curly-braces-in-ruby-regex
-            arg_match = inst.match /(?=\{((?:[^{} ]*?|\{\g<1>\})*?)\})/
+            arg_match = inst.match /(?=\{((?:[^{}]*?|\{\g<1>\})*?)\})/
             # only the capture if found
             arg = arg_match ? arg_match[1] : ""
 

@@ -29,19 +29,19 @@ class Line
          text_contents = @text.sub /^\s+/, ""
 
          # reset formatting and add line number
+            # add the indent
+            # set colors
+            # set additional formatting
+            # close escape and starting str + contents
          @text = "\x1b[0m" + (Data.number_lines ? get_num : "") \
-               # add the indent
                + text_leading_whitespace \
-               # set colors
                + "\x1b[#{Data.prev_colors[:foreground]}" \
                + ";#{Data.prev_colors[:background]}" \
-               # set additional formatting
                + (Data.is_bold ? ";1" : "") \
                + (Data.is_italic ? ";3" : "") \
                + (Data.is_underlined ? ";4" : "") \
                + (Data.is_blink ? ";5" : "") \
-               # close escape and contents
-               + "m" + text_contents
+               + "m" + Data.starts_with + text_contents
 
       # else just numbers #
       elsif Data.number_lines
@@ -70,6 +70,11 @@ class Page
       @lines.last.alingment = @alingment
    end
 
+   # gets width of empty line
+   def default_width
+      width = @indent + num_w + Data.starts_with.size
+   end
+
    ###################################
    # insert text to line like normal #
    ###################################
@@ -80,7 +85,7 @@ class Page
       if text.empty?
          unless @lines.last.empty
             @lines << Line.new(" " * @indent, @alingment)
-            @curr_width = @indent + num_w
+            @curr_width = default_width
          end
          return ""
       end
@@ -115,7 +120,7 @@ class Page
          end
 
          # if word is too long
-         if @indent + words.first.size >= Data.term_width
+         if default_width + words.first.size >= Data.term_width
             # if something on line
             unless @lines.last.empty
                @lines << Line.new(" " * @indent + \
@@ -130,7 +135,7 @@ class Page
          end
 
          # call again with rest of words
-         @curr_width = @indent + num_w
+         @curr_width = default_width
          @lines << Line.new(" " * @indent, @alingment)
 
          append words.join(" ")
@@ -140,7 +145,7 @@ class Page
 
       if Data.hardnl
          @lines << Line.new(" " * @indent, @alingment)
-         @curr_width = @indent + num_w
+         @curr_width = default_width
       end
 
       # for when multipe pages will be used
@@ -155,10 +160,13 @@ class Page
 
    # make sure last line is empty #
    def new_block
-      @lines.pop if @lines.last.empty
+      if @lines.last.empty
+         @lines.pop
+         Data.line_number -= 1
+      end
 
       @lines << Line.new(" " * @indent, @alingment)
-      @curr_width = @indent + num_w
+      @curr_width = default_width
 
       nil
    end
@@ -173,7 +181,7 @@ class Page
          else
             @lines.last.text = @lines.last.text.strip + " " * @indent
          end
-         @curr_width = @indent + num_w
+         @curr_width = default_width
       end
    end
 end

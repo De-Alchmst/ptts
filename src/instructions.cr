@@ -188,6 +188,25 @@ module Insts
          -> {}
       ],
 
+      "line" => [
+         -> {
+            Outcome.append ""
+            Outcome.append "-" # just add something to toggle @empty
+            Outcome.pages.last.lines.last.text = "-" * Data.term_width
+            Data.line_number -= 1
+            Outcome.new_block
+         },
+         -> {}
+      ],
+
+      "startswithnothing" => [
+         -> {
+            Data.starts_with = ""
+            Outcome.new_block
+            nil
+         },
+         -> {}
+      ],
    }
 
    @@with_arg = {
@@ -383,6 +402,14 @@ module Insts
             num.times {
                Outcome.pages.last.lines << Line.new("", Outcome.alingment)
             }
+         },
+         ->(arg : String) {}
+      ],
+
+      "startswith" => [
+         ->(arg : String) {
+            Data.starts_with = arg
+            Outcome.new_block
          },
          ->(arg : String) {}
       ],

@@ -91,3 +91,4 @@ reached, first repeats doubled
 - @sourceall{path} - inserts and sources everything from file at 'path'
 
 - @startswith{text} - will insert this text at beginning of lines from now onward
+- @startswithnothing - will reser @startswith to nothing

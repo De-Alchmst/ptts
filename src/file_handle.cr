@@ -44,7 +44,7 @@ def process_file(filename : String)
                # check
                unless inst[1].empty?
                   abort "extra argument given to: #{inst[0]} " \
-                     + "in file: #{filename} at line #{i}"
+                     + "in file: #{filename} at line #{i+1}"
                end
 
                # call
@@ -55,14 +55,14 @@ def process_file(filename : String)
                # check
                if inst[1].empty?
                   abort "missing argument for: #{inst[0]}" \
-                     + " in file: #{filename} at line #{i}"
+                     + " in file: #{filename} at line #{i+1}"
                end
                # call
                Insts.with_arg[inst[0]][0].call(inst[1])
             # missing inst #
             else
                abort "unknown instruction: #{inst[0]} in file: #{filename} " \
-                  + "at line #{i}"
+                  + "at line #{i+1}"
             end
          }
 

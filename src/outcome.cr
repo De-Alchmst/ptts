@@ -2,31 +2,17 @@ require "./data.cr"
 require "./pages.cr"
 
 module Outcome
-   class_property pages, fg, bg, alingment, bold, italic, underline, indent
+   class_property pages, alingment, indent
 
    @@alingment = Alingment::Left
-
-   @@fg = "39"
-   @@bg = "39"
-
-   @@bold = false
-   @@italic = false
-   @@underline = false
 
    @@indent = 0
 
    @@pages = [] of Page
 
    def self.init
-      @@pages = [Page.new(@@alingment, 0)]
+      @@pages = [Page.new(@@alingment, 0, :regular)]
       @@alingment = Alingment::Left
-
-      @@fg = "39"
-      @@bg = "39"
-
-      @@bold = false
-      @@italic = false
-      @@underline = false
 
       @@indent = 0
    end
@@ -35,12 +21,16 @@ module Outcome
       cur_page() = @alingment
    end
 
+   def self.new_page(page_type = :regular)
+      @@pages << Page.new(@@alingment, @@indent, page_type)
+   end
+
    # insert text to line like normal
    def self.append(text : String, strip=true)
       overflow = @@pages.last.append text, strip
 
       unless overflow.empty?
-         @@pages << Page.new(@@alingment, @@indent)
+         @@pages << Page.new(@@alingment, @@indent, :regular)
          self.append overflow
       end
    end
@@ -69,17 +59,10 @@ module Outcome
    end
    # change stuff
 
-   def self.fg=(new)
-      @@fg = Colors.fg[new]
-   end
-   def self.bg=(new)
-      @@bg = Colors.bg[new]
-   end
-
    def self.new_block
       eop = @@pages.last.new_block
       if eop
-         @@pages << Page.new(@@alingment, @@indent)
+         @@pages << Page.new(@@alingment, @@indent, :regular)
       end
       nil
    end

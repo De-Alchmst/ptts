@@ -299,6 +299,30 @@ module Insts
          },
          -> {}
       ],
+
+      "pgbr" => [
+         -> {
+            Outcome.new_page
+            nil
+         },
+         -> {}
+      ],
+
+      "pgeven" => [
+         -> {
+            Outcome.new_page :even
+            nil
+         },
+         -> {}
+      ],
+
+      "pgodd" => [
+         -> {
+            Outcome.new_page :odd
+            nil
+         },
+         -> {}
+      ],
    }
 
    @@with_arg = {

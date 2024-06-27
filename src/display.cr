@@ -9,10 +9,26 @@ def display()
    prev_name = Data.filename
 
    normal_lines = [] of String
-   Outcome.pages.each { |page|
-      page.lines.each { |line|
+   Outcome.pages.size.times {|i|
+      Outcome.pages[i].lines.each { |line|
          normal_lines << line.text
       }
+
+      unless i == Outcome.pages.size - 1
+         new = "-" * ((Data.term_width - 6) / 2).floor.to_i \
+            + "PG-END" + "-" * ((Data.term_width - 6) / 2).ceil.to_i
+
+         normal_lines.pop if Outcome.pages[i].lines.last.empty
+         if Data.plaintext
+            normal_lines << new
+         else
+            normal_lines << "\x1b[0m" + new
+         end
+
+         4.times {
+            normal_lines << ""
+         }
+      end
    }
 
    meta_lines = [] of String
@@ -27,6 +43,14 @@ def display()
    meta_scroll = 0
    normal_scroll = 0
    current_lines = :normal
+
+   # if output to stdout
+   if Data.output_mode == :stdout
+      normal_lines.each {|line|
+         puts line
+      }
+      exit
+   end
 
    # switch to alternate buffer
    print "\x1b[?1049h\x1b[H"

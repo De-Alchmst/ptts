@@ -54,13 +54,13 @@ class Line
 end
 
 class Page
-   property indent, skip_space, lines, curr_width, default_width
+   property indent, skip_space, lines, curr_width, default_width, page_type
 
    @curr_width = 0
    @skip_space = false
 
-   def initialize(@alingment : Alingment, @indent : Int32)
-      @lines = [Line.new("", @alingment)]
+   def initialize(@alingment : Alingment, @indent : Int32, @page_type : Symbol)
+      @lines = [Line.new(" " * @indent, @alingment)]
    end
 
    def alingment

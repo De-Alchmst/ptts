@@ -43,14 +43,14 @@ module Outcome
 
    # footnotes #
    def self.add_footnote(text : String)
-      sym = Data.footnote_symbols[pages.last.footnote_index] \
+      mark = Data.footnote_symbols[pages.last.footnote_index] \
                         * (pages.last.footnote_repeat + 1)
 
       pages.last.lines.pop if pages.last.lines.last.empty
 
       self.skip_space = true
-      pages.last.append sym
-      pages.last.lines.last.footnotes << [sym, text]
+      pages.last.append mark
+      pages.last.lines.last.footnotes << Footnote.new(mark, text)
 
       pages.last.footnote_index += 1
       if pages.last.footnote_index == Data.footnote_symbols.size

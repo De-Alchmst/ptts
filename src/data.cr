@@ -34,7 +34,42 @@ module Data
    @@current_lines = [] of String
    @@footnote_symbols = ["*"]
    @@footnote_size = 0
-   @@footnotes = {} of Int32 => Array(Array(String)) 
+   @@footnotes = {} of Int32 => Array(Footnote)
+end
+
+class Footnote
+   property text, height
+   def initialize(mark : String, txt : String)
+      # format footnote text
+      @text = mark
+      indent = mark.size + 1
+      width = mark.size
+      @height = 1
+
+      words = txt.split " "
+      until words.empty?
+         word = words.shift
+
+         # split if too long
+         if word.size > Data.term_width - indent
+            words.unshift  word[Data.term_width - indent..]
+            word = word[0..Data.term_width - indent - 1]
+         end
+
+         # fits on line
+         if word.size + width < Data.term_width
+            @text += " " + word
+            width += word.size + 1
+            # does not fit no line
+         else
+            @text += " " * (Data.term_width - width) \
+               + "\n" + " " * (indent) + word
+            @height += 1
+            width = word.size + indent
+         end
+      end
+      @text += " " * (Data.term_width - width)
+   end
 end
 
 def reset_data

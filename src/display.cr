@@ -5,7 +5,9 @@ require "./meta_process.cr"
 require "term-reader"
 
 def display()
-   # get texts #
+   #############
+   # GET TEXTS #
+   #############
    prev_name = Data.filename
 
    normal_lines = [] of String
@@ -33,6 +35,17 @@ def display()
             normal_lines << "\x1b[0m" + new
          end
 
+         ### IF STDOUT ###
+         if Data.output_mode == :stdout
+            Data.footnotes.values.each {|ftnts|
+               ftnts.each {|ftnt|
+                  normal_lines << ftnt.text
+               }
+            }
+            Data.footnotes = {} of Int32 => Array(Footnote)
+         end
+         #################
+
          4.times {
             normal_lines << ""
          }
@@ -52,13 +65,27 @@ def display()
    normal_scroll = 0
    current_lines = :normal
 
-   # if output to stdout
+   #######################
+   # IF OUTPUT TO STDOUT #
+   #######################
+
    if Data.output_mode == :stdout
       normal_lines.each {|line|
          puts line
       }
+
+      puts "-" * Data.term_width
+      Data.footnotes.values.each {|ftnts|
+         ftnts.each {|ftnt|
+            puts ftnt.text
+         }
+      }
       exit
    end
+
+   #########
+   # SETUP #
+   #########
 
    # switch to alternate buffer
    print "\x1b[?1049h\x1b[H"
@@ -69,6 +96,10 @@ def display()
 
    draw_screen
    draw_bar
+
+   ################
+   # INPUT HANDLE #
+   ################
 
    loop {
       char = reader.read_keypress.to_s.gsub '\e', ""
@@ -180,6 +211,10 @@ def display()
       reset
 end
 
+#################
+# DISPLAY STUFF #
+#################
+
 def clear_screen
    print "\x1b[0m\x1b[H" + " " * Data.term_width * Data.term_height
 end
@@ -233,48 +268,18 @@ def draw_bar
    print "\x1b[#{Data.term_height};0H\x1b[0;7m" + bar + "\x1b[0m"
 end
 
-def add_footnote(ftnt : Array(String))
+def add_footnote(ftnt : Footnote)
    Data.footnote_size = 1 if Data.footnote_size == 0
 
    # save cursor position and got to beginning
    print "\x1b[s"
 
-   # format footnote text
-   txt = "\n" + ftnt[0]
-   indent = ftnt[0].size + 1
-   width = ftnt[0].size
-   lines = 1
-
-   words = ftnt[1].split " "
-   until words.empty?
-      word = words.shift
-
-      # split if too long
-      if word.size > Data.term_width - indent
-         words.unshift  word[Data.term_width - indent..]
-         word = word[0..Data.term_width - indent - 1]
-      end
-
-      # fits on line
-      if word.size + width < Data.term_width
-         txt += " " + word
-         width += word.size + 1
-      # does not fit no line
-      else
-         txt += " " * (Data.term_width - width) \
-            + "\n" + " " * (indent) + word
-         lines += 1
-         width = word.size + indent
-      end
-   end
-   txt += " " * (Data.term_width - width)
-
    # move cursor
-   print "\x1b[#{Data.term_height - Data.footnote_size - lines};0H\x1b[0m"
+   print "\x1b[#{Data.term_height - Data.footnote_size - ftnt.height};0H\x1b[0m"
    # print the footnote
-   print "-" * Data.term_width + txt
+   print "-" * Data.term_width + "\n" + ftnt.text
 
-   Data.footnote_size += lines
+   Data.footnote_size += ftnt.height
 
    # restore cursor position
    print "\x1b[u"
@@ -284,6 +289,10 @@ def reset
    # go back to regular buffer
    print "\x1b[?1049l"
 end
+
+#############
+# SEARCHING #
+#############
 
 def search(prompt)
    Data.search_index = 0

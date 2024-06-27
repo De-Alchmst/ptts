@@ -1,3 +1,5 @@
+require "./data.cr"
+
 enum Alingment
    Left
    Center
@@ -21,7 +23,7 @@ end
 
 class Line
    property text, alingment, empty, footnotes
-   @footnotes = [] of Array(String)
+   @footnotes = [] of Footnote
 
    def initialize(@text : String, @alingment : Alingment)
       # if formatting #

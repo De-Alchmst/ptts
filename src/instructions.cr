@@ -649,5 +649,22 @@ module Insts
          },
          ->(arg : String) {}
       ],
+
+      "setfootnote" => [
+         ->(arg : String) {
+            Data.footnote_symbols = arg.split ";"
+            Outcome.reset_footnote_count
+            nil
+         },
+         ->(arg : String) {}
+      ],
+
+      "footnote" => [
+         ->(arg : String) {},
+         ->(arg : String) {
+            Outcome.add_footnote arg
+            nil
+         }
+      ],
    }
 end

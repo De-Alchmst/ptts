@@ -9,11 +9,19 @@ def display()
    prev_name = Data.filename
 
    normal_lines = [] of String
+
+   # get normal lines #
    Outcome.pages.size.times {|i|
       Outcome.pages[i].lines.each { |line|
          normal_lines << line.text
+
+         # footnotes #
+         unless line.footnotes.empty?
+            Data.footnotes[normal_lines.size - 1] = line.footnotes
+         end
       }
 
+      # page breaks #
       unless i == Outcome.pages.size - 1
          new = "-" * ((Data.term_width - 6) / 2).floor.to_i \
             + "PG-END" + "-" * ((Data.term_width - 6) / 2).ceil.to_i
@@ -162,6 +170,8 @@ def display()
 
       prev_key = "" unless char = "g"
 
+      Data.footnote_size = 0
+
       draw_screen
       draw_bar
    }
@@ -179,11 +189,25 @@ def draw_screen
 
    # display lines #
    print "\x1b[H"
-   (0..Data.term_height-2).each { |i|
-      if Data.scroll+i >= Data.current_lines.size
-         break
-      end
+   
+   # reinvent forloop
+   i = 0
+   loop {
+      break if i >= Data.term_height - 1 - Data.footnote_size
+
+      # if no more lines
+      break if Data.scroll+i >= Data.current_lines.size
+
       puts Data.current_lines[Data.scroll + i]
+
+      # footnotes
+      if Data.footnotes.keys.includes? i+Data.scroll
+         Data.footnotes[i+Data.scroll].each {|ftnt|
+            add_footnote ftnt
+         }
+      end
+
+      i += 1
    }
 end
 
@@ -207,6 +231,53 @@ def draw_bar
    end
 
    print "\x1b[#{Data.term_height};0H\x1b[0;7m" + bar + "\x1b[0m"
+end
+
+def add_footnote(ftnt : Array(String))
+   Data.footnote_size = 1 if Data.footnote_size == 0
+
+   # save cursor position and got to beginning
+   print "\x1b[s"
+
+   # format footnote text
+   txt = "\n" + ftnt[0]
+   indent = ftnt[0].size + 1
+   width = ftnt[0].size
+   lines = 1
+
+   words = ftnt[1].split " "
+   until words.empty?
+      word = words.shift
+
+      # split if too long
+      if word.size > Data.term_width - indent
+         words.unshift  word[Data.term_width - indent..]
+         word = word[0..Data.term_width - indent - 1]
+      end
+
+      # fits on line
+      if word.size + width < Data.term_width
+         txt += " " + word
+         width += word.size + 1
+      # does not fit no line
+      else
+         txt += " " * (Data.term_width - width) \
+            + "\n" + " " * (indent) + word
+         lines += 1
+         width = word.size + indent
+      end
+   end
+   txt += " " * (Data.term_width - width)
+
+   # move cursor
+   print "\x1b[#{Data.term_height - Data.footnote_size - lines};0H\x1b[0m"
+   # print the footnote
+   print "-" * Data.term_width + txt
+
+   Data.footnote_size += lines
+
+   # restore cursor position
+   print "\x1b[u"
 end
 
 def reset

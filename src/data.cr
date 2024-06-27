@@ -1,9 +1,10 @@
 module Data
-   class_property term_width, term_height, plaintext, file_line_count, \
-      filename, color_mode, prev_colors, indent_level, indent_level_length, \
-      indent_extra, output_mode, scroll, is_bold, is_italic, is_underlined, \
+   class_property term_width, term_height, plaintext, file_line_count,
+      filename, color_mode, prev_colors, indent_level, indent_level_length,
+      indent_extra, output_mode, scroll, is_bold, is_italic, is_underlined,
       is_blink, search_list, search_index, vars, instructions, hardnl,
-      number_lines, line_number, num_width, starts_with, meta, current_lines
+      number_lines, line_number, num_width, starts_with, meta, current_lines,
+      footnote_symbols, footnotes, footnote_size
    @@term_width : Int32 = `tput cols`.to_i
    @@term_height : Int32 = `tput lines`.to_i
    @@plaintext = false
@@ -31,6 +32,9 @@ module Data
    @@starts_with = ""
    @@meta = {} of String => String
    @@current_lines = [] of String
+   @@footnote_symbols = ["*"]
+   @@footnote_size = 0
+   @@footnotes = {} of Int32 => Array(Array(String)) 
 end
 
 def reset_data

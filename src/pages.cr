@@ -20,7 +20,9 @@ def num_w
 end
 
 class Line
-   property text, alingment, empty
+   property text, alingment, empty, footnotes
+   @footnotes = [] of Array(String)
+
    def initialize(@text : String, @alingment : Alingment)
       # if formatting #
       if !Data.plaintext
@@ -54,8 +56,11 @@ class Line
 end
 
 class Page
-   property indent, skip_space, lines, curr_width, default_width, page_type
+   property indent, skip_space, lines, curr_width, default_width, page_type,
+      footnote_repeat, footnote_index
 
+   @footnote_repeat = 0
+   @footnote_index = 0
    @curr_width = 0
    @skip_space = false
 

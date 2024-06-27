@@ -41,6 +41,29 @@ module Outcome
       nil
    end
 
+   # footnotes #
+   def self.add_footnote(text : String)
+      sym = Data.footnote_symbols[pages.last.footnote_index] \
+                        * (pages.last.footnote_repeat + 1)
+
+      pages.last.lines.pop if pages.last.lines.last.empty
+
+      self.skip_space = true
+      pages.last.append sym
+      pages.last.lines.last.footnotes << [sym, text]
+
+      pages.last.footnote_index += 1
+      if pages.last.footnote_index == Data.footnote_symbols.size
+         pages.last.footnote_index = 0
+         pages.last.footnote_repeat += 1
+      end
+   end
+
+   def self.reset_footnote_count
+      pages.last.footnote_repeat = 0
+      pages.last.footnote_index = 0
+   end
+
    # wrappers over last page
    def self.curr_width
       @@pages.last.curr_width

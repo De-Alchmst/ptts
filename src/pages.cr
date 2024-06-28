@@ -17,7 +17,7 @@ def get_num
    if !Data.wrap || Data.wrap_now
       " " * padding + s + " "
    else
-      " " * (num_w + 1) 
+      " " * (num_w) 
    end
 end
 

@@ -137,8 +137,19 @@ def display()
                prev_key = "g"
             end
          when "G", "[4~"
-            new = Data.current_lines.size - Data.term_height + 1
-            Data.scroll = new if new > 0
+            prev_footnote_size = -1
+
+            # scroll to bottom until end right above footnote
+            until prev_footnote_size == Data.footnote_size
+               prev_footnote_size = Data.footnote_size
+               Data.footnote_size = 0
+
+               new = Data.current_lines.size - Data.term_height + 1 \
+                   + prev_footnote_size
+               Data.scroll = new if new > 0
+
+               draw_screen
+            end
 
          # search
          when "/", "\u0006"

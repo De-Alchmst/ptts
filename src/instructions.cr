@@ -323,6 +323,22 @@ module Insts
          },
          -> {}
       ],
+
+      "wrap" => [
+         -> {
+            Data.wrap = true
+            nil
+         },
+         -> {}
+      ],
+
+      "nowrap" => [
+         -> {
+            Data.wrap = false
+            nil
+         },
+         -> {}
+      ],
    }
 
    @@with_arg = {

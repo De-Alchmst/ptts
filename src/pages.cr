@@ -13,7 +13,12 @@ def get_num
    if padding < 0
       abort "number while numbering to high"
    end
-   " " * padding + s + " "
+   
+   if !Data.wrap || Data.wrap_now
+      " " * padding + s + " "
+   else
+      " " * (num_w + 1) 
+   end
 end
 
 # get width of number part if numbering
@@ -52,7 +57,8 @@ class Line
          @text = get_num + @text
       end
 
-      Data.line_number += 1
+      Data.line_number += 1 if !Data.wrap || Data.wrap_now
+      Data.wrap_now = false
       @empty = true
    end
 end
@@ -91,6 +97,7 @@ class Page
       # empty lines
       if text.empty?
          unless @lines.last.empty
+            Data.wrap_now = true
             @lines << Line.new(" " * @indent, @alingment)
             @curr_width = default_width
          end
@@ -116,7 +123,7 @@ class Page
          # insert as many words on current line
          while words.first.size + @curr_width < Data.term_width
             w = words.shift
-            w = " " + w unless @curr_width == @indent || @skip_space
+            w = " " + w unless @curr_width == @indent + num_w || @skip_space
             @skip_space = false
 
             @lines.last.text += w
@@ -131,11 +138,13 @@ class Page
             # if something on line
             unless @lines.last.empty
                @lines << Line.new(" " * @indent + \
-                                  words[0][..Data.term_width - 1 - @indent], \
+                                  words[0][..Data.term_width - 1 - @indent \
+                                           - num_w], \
                                   @alingment)
             # if one word uder multiple lines
             else
-               @lines.last.text += words[0][..Data.term_width - 1 - @indent] 
+               @lines.last.text += words[0][..Data.term_width - 1 - @indent \
+                                            - num_w] 
             end
 
             words[0] = words[0][Data.term_width..]
@@ -151,6 +160,7 @@ class Page
       @skip_space = false
 
       if Data.hardnl
+         Data.wrap_now = true
          @lines << Line.new(" " * @indent, @alingment)
          @curr_width = default_width
       end
@@ -172,6 +182,7 @@ class Page
          Data.line_number -= 1
       end
 
+      Data.wrap_now = true
       @lines << Line.new(" " * @indent, @alingment)
       @curr_width = default_width
 

@@ -329,6 +329,7 @@ end
 
 def show_search
    Data.scroll = Data.search_list[Data.search_index].position
+   Data.footnote_size = 0
    draw_screen
 
    # custom bar #

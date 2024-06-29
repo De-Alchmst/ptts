@@ -4,7 +4,8 @@ module Data
       indent_extra, output_mode, scroll, is_bold, is_italic, is_underlined,
       is_blink, search_list, search_index, vars, instructions, hardnl,
       number_lines, line_number, num_width, starts_with, meta, current_lines,
-      footnote_symbols, footnotes, footnote_size, wrap, wrap_now
+      footnote_symbols, footnotes, footnote_size, wrap, wrap_now,
+      last_alignment, prev_hardnl, strip
    @@term_width : Int32 = `tput cols`.to_i
    @@term_height : Int32 = `tput lines`.to_i
    @@plaintext = false
@@ -37,6 +38,15 @@ module Data
    @@footnotes = {} of Int32 => Array(Footnote)
    @@wrap = false
    @@wrap_now = false
+   @@last_alignment = Alingment::Left
+   @@prev_hardnl = false
+   @@strip = true
+end
+
+enum Alingment
+   Left
+   Center
+   Right
 end
 
 class Footnote

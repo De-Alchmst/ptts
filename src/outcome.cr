@@ -18,7 +18,7 @@ module Outcome
    end
 
    def self.alingment=(@@alingment : Alingment)
-      cur_page() = @alingment
+      pages.last.alingment = @@alingment
    end
 
    def self.new_page(page_type = :regular)

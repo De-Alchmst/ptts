@@ -1,11 +1,5 @@
 require "./data.cr"
 
-enum Alingment
-   Left
-   Center
-   Right
-end
-
 # get number part if line numbering active
 def get_num
    s = Data.line_number.to_s
@@ -34,7 +28,7 @@ class Line
       # if formatting #
       if !Data.plaintext
          # split to indent and contents
-         text_leading_whitespace = @text.sub /\S.*/, ""
+         leading_whitespace = @text.sub /\S.*/, ""
          text_contents = @text.sub /^\s+/, ""
 
          # reset formatting and add line number
@@ -43,7 +37,7 @@ class Line
             # set additional formatting
             # close escape and starting str + contents
          @text = "\x1b[0m" + (Data.number_lines ? get_num : "") \
-               + text_leading_whitespace \
+               + (@alingment == Alingment::Center ? "" : leading_whitespace) \
                + "\x1b[#{Data.prev_colors[:foreground]}" \
                + ";#{Data.prev_colors[:background]}" \
                + (Data.is_bold ? ";1" : "") \
@@ -73,32 +67,43 @@ class Page
    @skip_space = false
 
    def initialize(@alingment : Alingment, @indent : Int32, @page_type : Symbol)
-      @lines = [Line.new(" " * @indent, @alingment)]
+      @lines = [Line.new(" " * indent, @alingment)]
    end
 
    def alingment
       @alingment
    end
    def alingment=(@alingment : Alingment)
-      @lines.last.alingment = @alingment
+      new_block
+   end
+
+   def indent
+      unless lines.empty? || lines.last.alingment == Alingment::Center
+         @indent
+      else
+         0
+      end
    end
 
    # gets width of empty line
    def default_width
-      width = @indent + num_w + Data.starts_with.size
+      indent + num_w + Data.starts_with.size
    end
 
    ###################################
    # insert text to line like normal #
    ###################################
    def append(text : String, strip=true)
-      text = text.strip if strip
+      puts text
+      if strip && Data.strip
+         text = text.strip
+      end
 
       # empty lines
       if text.empty?
          unless @lines.last.empty
             Data.wrap_now = true
-            @lines << Line.new(" " * @indent, @alingment)
+            @lines << Line.new(" " * indent, @alingment)
             @curr_width = default_width
          end
          return ""
@@ -123,7 +128,7 @@ class Page
          # insert as many words on current line
          while words.first.size + @curr_width < Data.term_width
             w = words.shift
-            w = " " + w unless @curr_width == @indent + num_w || @skip_space
+            w = " " + w unless @curr_width == indent + num_w || @skip_space
             @skip_space = false
 
             @lines.last.text += w
@@ -134,16 +139,16 @@ class Page
          end
 
          # if word is too long
-         if default_width + words.first.size >= Data.term_width
+         if !words.empty? && default_width + words.first.size >= Data.term_width
             # if something on line
             unless @lines.last.empty
-               @lines << Line.new(" " * @indent + \
-                                  words[0][..Data.term_width - 1 - @indent \
+               @lines << Line.new(" " * indent + \
+                                  words[0][..Data.term_width - 1 - indent \
                                            - num_w], \
                                   @alingment)
             # if one word uder multiple lines
             else
-               @lines.last.text += words[0][..Data.term_width - 1 - @indent \
+               @lines.last.text += words[0][..Data.term_width - 1 - indent \
                                             - num_w] 
             end
 
@@ -152,7 +157,7 @@ class Page
 
          # call again with rest of words
          @curr_width = default_width
-         @lines << Line.new(" " * @indent, @alingment)
+         @lines << Line.new(" " * indent, @alingment)
 
          append words.join(" ")
       end
@@ -161,7 +166,7 @@ class Page
 
       if Data.hardnl
          Data.wrap_now = true
-         @lines << Line.new(" " * @indent, @alingment)
+         @lines << Line.new(" " * indent, @alingment)
          @curr_width = default_width
       end
 
@@ -183,7 +188,8 @@ class Page
       end
 
       Data.wrap_now = true
-      @lines << Line.new(" " * @indent, @alingment)
+
+      @lines << Line.new(" " * indent, @alingment)
       @curr_width = default_width
 
       nil
@@ -195,9 +201,9 @@ class Page
             num = @lines.last.text.match(/(..\d )/).as(Regex::MatchData)[1]
             rest = @lines.last.text.match(/..\d (.*)/).as(Regex::MatchData)[1]
 
-            @lines.last.text = num + rest.strip + " " * @indent
+            @lines.last.text = num + rest.strip + " " * indent
          else
-            @lines.last.text = @lines.last.text.strip + " " * @indent
+            @lines.last.text = @lines.last.text.strip + " " * indent
          end
          @curr_width = default_width
       end

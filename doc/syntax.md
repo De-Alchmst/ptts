@@ -78,6 +78,9 @@ indented by extra 'num' spaces, negative num decreases indent
 - @hardnl - stops joining lines like normal and seperates blocks by single newline
 - @softnl - returns to joining lines like normal
 
+- @bart - sets hardnl and does not strip leading spaces
+- @eart - sets previous lining and starts striping leading spaces
+
 - @bnum - begins numbering lines
 - @enum - ends numbering lines
 

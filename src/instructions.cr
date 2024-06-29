@@ -254,12 +254,12 @@ module Insts
       ],
 
       "hardnl" => [
-         -> {Data.hardnl = true; nil},
+         -> {Data.hardnl = true; Data.prev_hardnl = true; nil},
          -> {}
       ],
 
       "softnl" => [
-         -> {Data.hardnl = false; nil},
+         -> {Data.hardnl = false; Data.prev_hardnl = false; nil},
          -> {}
       ],
 
@@ -301,40 +301,94 @@ module Insts
       ],
 
       "pgbr" => [
-         -> {
-            Outcome.new_page
-            nil
-         },
+         -> {Outcome.new_page; nil},
          -> {}
       ],
 
       "pgeven" => [
-         -> {
-            Outcome.new_page :even
-            nil
-         },
+         -> {Outcome.new_page :even; nil},
          -> {}
       ],
 
       "pgodd" => [
-         -> {
-            Outcome.new_page :odd
-            nil
-         },
+         -> {Outcome.new_page :odd; nil},
          -> {}
       ],
 
       "wrap" => [
+         -> {Data.wrap = true; nil},
+         -> {}
+      ],
+
+      "nowrap" => [
+         -> {Data.wrap = false; nil},
+         -> {}
+      ],
+
+      "lft" => [
+         -> {Outcome.alingment = Alingment::Left; nil},
+         -> {}
+      ],
+
+      "cnt" => [
+         -> {Outcome.alingment = Alingment::Center; nil},
+         -> {}
+      ],
+
+      "rght" => [
+         -> {Outcome.alingment = Alingment::Right; nil},
+         -> {}
+      ],
+
+      "lftln" => [
          -> {
-            Data.wrap = true
+            Data.last_alignment = Outcome.alingment
+            Outcome.alingment = Alingment::Left
+            nil
+         },
+         -> {
+            Outcome.alingment = Data.last_alignment
+            nil
+         }
+      ],
+
+      "cntln" => [
+         -> {
+            Data.last_alignment = Outcome.alingment
+            Outcome.alingment = Alingment::Center
+            nil
+         },
+         -> {
+            Outcome.alingment = Data.last_alignment
+            nil
+         }
+      ],
+
+      "rghtln" => [
+         -> {
+            Data.last_alignment = Outcome.alingment
+            Outcome.alingment = Alingment::Right
+            nil
+         },
+         -> {
+            Outcome.alingment = Data.last_alignment
+            nil
+         }
+      ],
+
+      "bart" => [
+         -> {
+            Data.strip = false;
+            Data.hardnl = true
             nil
          },
          -> {}
       ],
 
-      "nowrap" => [
+      "eart" => [
          -> {
-            Data.wrap = false
+            Data.strip = true;
+            Data.hardnl = Data.prev_hardnl
             nil
          },
          -> {}

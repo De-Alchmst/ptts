@@ -26,7 +26,7 @@ def process_file(filename : String, contents="")
    # GO THROUGH #
    ##############
    lines.size.times { |i|
-      line = lines[i].strip + " "
+      line = lines[i] + " "
       Data.file_line_count = i + 1
       Data.instructions = [] of Array(String)
 

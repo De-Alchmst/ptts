@@ -178,16 +178,16 @@ class Page
             # if something on line
             unless @lines.last.empty
                @lines << Line.new(" " * indent + \
-                                  words[0][..Data.term_width - 1 - indent \
-                                           - num_w], \
+                                  words[0][..Data.term_width - 1 \
+                                           - default_width], \
                                            @indent, @alingment)
             # if one word uder multiple lines
             else
-               @lines.last.text += words[0][..Data.term_width - 1 - indent \
-                                            - num_w] 
+               @lines.last.text += words[0][..Data.term_width - 1 \
+                                            - default_width] 
             end
 
-            words[0] = words[0][Data.term_width..]
+            words[0] = words[0][Data.term_width - default_width..]
          end
 
          # call again with rest of words

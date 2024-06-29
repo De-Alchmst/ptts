@@ -21,9 +21,10 @@ def num_w
 end
 
 class Line
-   property text, alingment, empty, footnotes, num, indent
+   property text, alingment, empty, footnotes, num, indent, strip
    @footnotes = [] of Footnote
    @num = false
+   @strip : Bool
 
    def initialize(@text : String, @indent : Int32, @alingment : Alingment)
       # if formatting #
@@ -58,6 +59,7 @@ class Line
       end
       @num = true if Data.number_lines
 
+      @strip = Data.strip
 
       Data.line_number += 1 if !Data.wrap || Data.wrap_now
       Data.wrap_now = false
@@ -70,8 +72,11 @@ class Line
 
       escapes_start = ""
       escapes_middle = ""
-      txt = @text
+      txt = @text.gsub Data.escape_regex_end, ""
+      txt = txt.rstrip if @strip
       number = ""
+
+      puts txt.gsub "\x1b", "\\x1b"
 
       # split #
 
@@ -104,7 +109,8 @@ class Line
       else
          leading_whitespace = ""
       end
-      text_contents = txt[leading_whitespace.size..]
+      text_contents = ""
+      text_contents = txt[@indent..] unless txt.empty?
       txt_size = text_contents.gsub(Data.escape_regex, "").size
 
       # join back
@@ -114,11 +120,12 @@ class Line
          puts @num
          puts number.size
          puts "|#{@text}|"
+         puts "|#{text_contents.gsub "\x1b", "\\x1b"}|"
          puts txt_size
-         puts leading_whitespace.size
+         puts @indent
          return escapes_start + number + " " * (Data.term_width - number.size \
                                                 - txt_size \
-                                                - leading_whitespace.size) \
+                                                - @indent) \
                        + escapes_middle + text_contents + \
                        (Data.plaintext ? "" : "\x1b[0m") \
                        + leading_whitespace

@@ -254,12 +254,22 @@ module Insts
       ],
 
       "hardnl" => [
-         -> {Data.hardnl = true; Data.prev_hardnl = true; nil},
+         -> {
+            Data.hardnl = true
+            Data.prev_hardnl = true
+            Outcome.new_block
+            nil
+         },
          -> {}
       ],
 
       "softnl" => [
-         -> {Data.hardnl = false; Data.prev_hardnl = false; nil},
+         -> {
+            Data.hardnl = false
+            Data.prev_hardnl = false
+            Outcome.new_block
+            nil
+         },
          -> {}
       ],
 
@@ -381,6 +391,7 @@ module Insts
          -> {
             Data.strip = false;
             Data.hardnl = true
+            Outcome.new_block
             nil
          },
          -> {}
@@ -390,6 +401,7 @@ module Insts
          -> {
             Data.strip = true;
             Data.hardnl = Data.prev_hardnl
+            Outcome.new_block
             nil
          },
          -> {}

@@ -1,9 +1,11 @@
 # Plain Text Typesetting System
 
-by Ðe-Alchmst
-t
-Currently only small subset of standard is implemented in ruby.
-(@, b, bb, eb, i, bi, ei, u, bu, eu, blink, bblink, eblink, fg, bg, cl, bcl,
-setindl, bindl, indl)
+A nice way to format text to be shown inside terminal / with monospace font.
 
-Work is being done on full crystal implementation.
+Both more clasicall and vi-based keybindings are supported in the tui.
+Metadata can be shown by pressing 'm'
+
+Currently under developement. `sourcecnfg`, `sourcetxt`, and `sourceall`
+are not implemented yet, rest should work.
+
+Work is being done on exporting to pdf (and possibly html).

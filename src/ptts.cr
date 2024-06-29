@@ -13,6 +13,7 @@ def help
       + "       -p, --plaintext   do not add escape sequences\n" \
       + "       -w, --width <num> sets output width\n" \
       + "       -s, --stdout      do not use tui interface" \
+      + "       -m, --meta        concat metadata at the end" \
 
 end
 
@@ -37,6 +38,9 @@ until ARGV.empty?
       when "stdout"
          Data.output_mode = :stdout
 
+      when "meta"
+         Data.concat_metadata = true
+
       else
          puts "unknown flag: #{arg}"
          help
@@ -58,6 +62,9 @@ until ARGV.empty?
 
          when 's'
             Data.output_mode = :stdout
+
+         when 'm'
+            Data.concat_metadata = true
 
          else
             puts "unknown flag: -#{flag}"

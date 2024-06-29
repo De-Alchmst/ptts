@@ -5,7 +5,8 @@ module Data
       is_blink, search_list, search_index, vars, instructions, hardnl,
       number_lines, line_number, num_width, starts_with, meta, current_lines,
       footnote_symbols, footnotes, footnote_size, wrap, wrap_now,
-      last_alignment, prev_hardnl, strip, escape_regex, escape_regex_end
+      last_alignment, prev_hardnl, strip, escape_regex, escape_regex_end,
+      concat_metadata
    @@term_width : Int32 = `tput cols`.to_i
    @@term_height : Int32 = `tput lines`.to_i
    @@plaintext = false
@@ -43,6 +44,7 @@ module Data
    @@strip = true
    @@escape_regex = Regex.new("\x1b\\[.*?m")
    @@escape_regex_end = Regex.new("\x1b\\[[^m]*?m$")
+   @@concat_metadata = false
 end
 
 enum Alingment

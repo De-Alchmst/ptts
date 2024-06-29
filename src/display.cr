@@ -57,6 +57,13 @@ def display()
       meta_lines << line.align
    }
 
+   if Data.concat_metadata
+      normal_lines << (Data.plaintext ? "" : "\x1b[0m") \
+                      + "-" * ((Data.term_width - 4) / 2).floor.to_i \
+                      + "META" + "-" * ((Data.term_width - 4) / 2).ceil.to_i
+      normal_lines += meta_lines
+   end
+
    Data.filename = prev_name
 
    Data.current_lines = normal_lines

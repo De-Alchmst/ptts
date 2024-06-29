@@ -76,8 +76,6 @@ class Line
       txt = txt.rstrip if @strip
       number = ""
 
-      puts txt.gsub "\x1b", "\\x1b"
-
       # split #
 
       unless Data.plaintext
@@ -116,13 +114,6 @@ class Line
       # join back
 
       if @alingment == Alingment::Right
-         puts "---------------"
-         puts @num
-         puts number.size
-         puts "|#{@text}|"
-         puts "|#{text_contents.gsub "\x1b", "\\x1b"}|"
-         puts txt_size
-         puts @indent
          return escapes_start + number + " " * (Data.term_width - number.size \
                                                 - txt_size \
                                                 - @indent) \

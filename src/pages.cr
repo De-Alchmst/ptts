@@ -21,44 +21,40 @@ def num_w
 end
 
 class Line
-   property text, alingment, empty, footnotes, num, indent, strip, starts_with
+   property text, alingment, empty, footnotes, has_num, indent, strip,
+      starts_with, escapes_start, escapes_middle, leading_whitespace, number
    @footnotes = [] of Footnote
-   @num = false
+   @has_num = false
    @strip : Bool
    @starts_with : String
+   @escapes_start = ""
+   @escapes_middle = ""
+   @leading_whitespace = ""
+   @number = ""
 
    def initialize(@text : String, @indent : Int32, @alingment : Alingment)
+      if @indent > 0
+         @leading_whitespace = @text[0..@indent - 1]
+      end
+
+      @text = @text[@indent..]
+
       # if formatting #
       if !Data.plaintext
-         # split to indent and contents
-         leading_whitespace = ""
-         if @indent > 0
-            leading_whitespace = @text[0..@indent - 1]
-         else
-            leading_whitespace = ""
-         end
-         text_contents = @text[@indent..]
-
-         # reset formatting and add line number
-            # add the indent
-            # set colors
-            # set additional formatting
-            # close escape and starting str + contents
-         @text = "\x1b[0m" + (Data.number_lines ? get_num : "") \
-               + (@alingment == Alingment::Center ? "" : leading_whitespace) \
-               + "\x1b[#{Data.prev_colors[:foreground]}" \
-               + ";#{Data.prev_colors[:background]}" \
-               + (Data.is_bold ? ";1" : "") \
-               + (Data.is_italic ? ";3" : "") \
-               + (Data.is_underlined ? ";4" : "") \
-               + (Data.is_blink ? ";5" : "") \
-               + "m" + Data.starts_with + text_contents
-
-      # else just numbers #
-      elsif Data.number_lines
-         @text = get_num + @text
+         @escapes_start = "\x1b[0m"
+         @escapes_middle = "\x1b[#{Data.prev_colors[:foreground]}" \
+                         + ";#{Data.prev_colors[:background]}" \
+                         + (Data.is_bold ? ";1" : "") \
+                         + (Data.is_italic ? ";3" : "") \
+                         + (Data.is_underlined ? ";4" : "") \
+                         + (Data.is_blink ? ";5" : "") \
+                         + "m"
       end
-      @num = true if Data.number_lines
+
+      if Data.number_lines
+         @has_num = true
+         @number = get_num
+      end
 
       @strip = Data.strip
       @starts_with = Data.starts_with
@@ -70,77 +66,30 @@ class Line
 
    # APPLY ALINGMENT #
    def align
-      return @text if @alingment == Alingment::Left
+      @text = @text.gsub Data.escape_regex_end, ""
+      @text = @text.rstrip if @strip
+      txt_size = @text.gsub(Data.escape_regex, "").size
 
-      escapes_start = ""
-      escapes_middle = ""
-      txt = @text
-      number = ""
-
-      # split #
-
-      unless Data.plaintext
-         escapes_start = "\x1b[0m"
-         txt = txt.sub escapes_start, ""
-      end
-
-      if @num
-         mtch = txt.match(/^ *\d+ /)
-         if mtch
-            number = mtch[0]
-         else
-            number = " " * (Data.num_width + 1)
-         end
-         txt = txt[number.size..]
-      end
-
-      unless Data.plaintext
-         mtch = txt.match(Data.escape_regex)
-         if mtch
-            escapes_middle = mtch[0]
-            txt = txt.sub escapes_middle, ""
-         end
-
-         txt = txt.gsub Data.escape_regex_end, ""
-      end
-
-      unless @indent == 0
-         leading_whitespace = txt[0..@indent - 1]
+      if @alingment == Alingment::Left
+         escapes_start + @number + leading_whitespace + escapes_middle \
+            + @starts_with + @text
+      elsif @alingment == Alingment::Center
+         escapes_start + number + escapes_middle \
+                       + @starts_with + escapes_start \
+                       + " " * ((Data.term_width - number.size \
+                                                 - txt_size \
+                                                 - @starts_with.size)/2).to_i \
+                       + escapes_middle + @text
       else
-         leading_whitespace = ""
+         escapes_start + number + escapes_middle \
+                       + @starts_with + escapes_start \
+                       + " " * (Data.term_width - number.size \
+                                - txt_size - @indent \
+                                - @starts_with.size) \
+                       + escapes_middle + @text \
+                       + (Data.plaintext ? "" : "\x1b[0m") \
+                       + leading_whitespace
       end
-
-      text_contents = ""
-      text_contents = txt[@indent+@starts_with.size..] unless txt.empty?
-
-      text_contents = text_contents.rstrip if @strip
-      txt_size = text_contents.gsub(Data.escape_regex, "").size
-
-      # join back #
-
-      if @alingment == Alingment::Right
-         return escapes_start + number + escapes_middle \
-                              + @starts_with + escapes_start \
-                              + " " * (Data.term_width - number.size \
-                                                       - txt_size - @indent \
-                                                       - @starts_with.size) \
-                              + escapes_middle + text_contents + \
-                                (Data.plaintext ? "" : "\x1b[0m") \
-                              + leading_whitespace
-      end
-
-      puts "---------------"
-      puts "|#{@text.gsub "\x1b", "\\x1b"}|"
-      puts "|#{text_contents.gsub "\x1b", "\\x1b"}|"
-      puts number.size
-      puts txt_size
-      puts @starts_with.size
-
-      escapes_start + number + escapes_middle + @starts_with + escapes_start \
-                    + " " * ((Data.term_width - number.size \
-                                              - txt_size \
-                                              - @starts_with.size) / 2).to_i \
-                    + escapes_middle + text_contents
    end
 end
 

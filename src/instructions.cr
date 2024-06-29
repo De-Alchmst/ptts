@@ -294,8 +294,11 @@ module Insts
          -> {
             Outcome.append ""
             Outcome.append "-" # just add something to toggle @empty
+            Outcome.pages.last.lines.last.number = ""
+            Outcome.pages.last.lines.last.starts_with = ""
+            Outcome.pages.last.lines.last.leading_whitespace = ""
             Outcome.pages.last.lines.last.text = "-" * Data.term_width
-            Outcome.pages.last.lines.last.num = false
+            Outcome.pages.last.lines.last.has_num = false
             Data.line_number -= 1
             Outcome.new_block
          },

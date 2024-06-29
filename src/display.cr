@@ -54,7 +54,7 @@ def display()
 
    meta_lines = [] of String
    get_meta.each { |line|
-      meta_lines << line.text
+      meta_lines << line.align
    }
 
    Data.filename = prev_name

@@ -285,6 +285,7 @@ module Insts
             Outcome.append ""
             Outcome.append "-" # just add something to toggle @empty
             Outcome.pages.last.lines.last.text = "-" * Data.term_width
+            Outcome.pages.last.lines.last.num = false
             Data.line_number -= 1
             Outcome.new_block
          },
@@ -664,7 +665,7 @@ module Insts
             num = arg.to_i
             num += 1 unless Outcome.pages.last.lines.last.empty
             num.times {
-               Outcome.pages.last.lines << Line.new("", Outcome.alingment)
+               Outcome.pages.last.lines << Line.new("", 0, Outcome.alingment)
             }
          },
          ->(arg : String) {}

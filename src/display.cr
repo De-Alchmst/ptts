@@ -15,7 +15,7 @@ def display()
    # get normal lines #
    Outcome.pages.size.times {|i|
       Outcome.pages[i].lines.each { |line|
-         normal_lines << line.text
+         normal_lines << line.align
 
          # footnotes #
          unless line.footnotes.empty?

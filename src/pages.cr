@@ -21,10 +21,11 @@ def num_w
 end
 
 class Line
-   property text, alingment, empty, footnotes, num, indent, strip
+   property text, alingment, empty, footnotes, num, indent, strip, starts_with
    @footnotes = [] of Footnote
    @num = false
    @strip : Bool
+   @starts_with : String
 
    def initialize(@text : String, @indent : Int32, @alingment : Alingment)
       # if formatting #
@@ -60,6 +61,7 @@ class Line
       @num = true if Data.number_lines
 
       @strip = Data.strip
+      @starts_with = Data.starts_with
 
       Data.line_number += 1 if !Data.wrap || Data.wrap_now
       Data.wrap_now = false
@@ -72,8 +74,7 @@ class Line
 
       escapes_start = ""
       escapes_middle = ""
-      txt = @text.gsub Data.escape_regex_end, ""
-      txt = txt.rstrip if @strip
+      txt = @text
       number = ""
 
       # split #
@@ -99,31 +100,46 @@ class Line
             escapes_middle = mtch[0]
             txt = txt.sub escapes_middle, ""
          end
-      end
 
+         txt = txt.gsub Data.escape_regex_end, ""
+      end
 
       unless @indent == 0
          leading_whitespace = txt[0..@indent - 1]
       else
          leading_whitespace = ""
       end
+
       text_contents = ""
-      text_contents = txt[@indent..] unless txt.empty?
+      text_contents = txt[@indent+@starts_with.size..] unless txt.empty?
+
+      text_contents = text_contents.rstrip if @strip
       txt_size = text_contents.gsub(Data.escape_regex, "").size
 
-      # join back
+      # join back #
 
       if @alingment == Alingment::Right
-         return escapes_start + number + " " * (Data.term_width - number.size \
-                                                - txt_size \
-                                                - @indent) \
-                       + escapes_middle + text_contents + \
-                       (Data.plaintext ? "" : "\x1b[0m") \
-                       + leading_whitespace
+         return escapes_start + number + escapes_middle \
+                              + @starts_with + escapes_start \
+                              + " " * (Data.term_width - number.size \
+                                                       - txt_size - @indent \
+                                                       - @starts_with.size) \
+                              + escapes_middle + text_contents + \
+                                (Data.plaintext ? "" : "\x1b[0m") \
+                              + leading_whitespace
       end
 
-      escapes_start + number + " " * ((Data.term_width - number.size \
-                                                       - txt_size) / 2).to_i \
+      puts "---------------"
+      puts "|#{@text.gsub "\x1b", "\\x1b"}|"
+      puts "|#{text_contents.gsub "\x1b", "\\x1b"}|"
+      puts number.size
+      puts txt_size
+      puts @starts_with.size
+
+      escapes_start + number + escapes_middle + @starts_with + escapes_start \
+                    + " " * ((Data.term_width - number.size \
+                                              - txt_size \
+                                              - @starts_with.size) / 2).to_i \
                     + escapes_middle + text_contents
    end
 end

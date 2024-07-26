@@ -15,7 +15,7 @@ def process_file(filename : String, contents="")
 
    if contents.empty?
       abort "file not found: #{filename}" unless File.exists? filename
-      abort "file not readable: #{filename}" unless File.readable? filename
+      abort "file not readable: #{filename}" unless File::Info.readable? filename
 
       lines = File.read(filename).strip.split /\n/
    else

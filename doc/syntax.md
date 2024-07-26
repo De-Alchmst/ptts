@@ -90,7 +90,7 @@ indented by extra 'num' spaces, negative num decreases indent
 - @setfootnote{marks} - sets ';' separated list of footnote marks, once last on
 reached, first repeats doubled
 
-- @meta{key:value-list} - sets metadata as key-value pair list separated by ';', key and value are seperated by ':'
+- @meta{key:value-list} - adds metadata as key-value pair list separated by ';', key and value are seperated by ':'
 
 - @cmnt - ignores this line from now onward
 

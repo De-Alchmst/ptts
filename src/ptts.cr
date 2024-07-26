@@ -1,6 +1,7 @@
 require "./pages.cr"
 require "./display.cr"
 require "./file_handle.cr"
+require "./pdf_export.cr"
 
 #####################
 # PROCESS ARGUMENTS #
@@ -14,10 +15,12 @@ def help
       + "       -w, --width <num> sets output width\n" \
       + "       -s, --stdout      do not use tui interface" \
       + "       -m, --meta        concat metadata at the end" \
+      + "       -x, --pdf         export to pdf"
 
 end
 
 filename = ""
+width_set = false
 
 until ARGV.empty?
    arg = ARGV.shift
@@ -35,8 +38,13 @@ until ARGV.empty?
          Data.term_width = ARGV.shift.to_i
          abort "width must be positive numeric vlue" if Data.term_width < 1
 
+         width_set = true
+
       when "stdout"
          Data.output_mode = :stdout
+
+      when "pdf"
+         Data.output_mode = :pdf
 
       when "meta"
          Data.concat_metadata = true
@@ -60,8 +68,13 @@ until ARGV.empty?
             Data.term_width = ARGV.shift.to_i
             abort "width must be positive numeric vlue" if Data.term_width < 1
 
+            width_set = true
+
          when 's'
             Data.output_mode = :stdout
+
+         when 'x'
+            Data.output_mode = :pdf
 
          when 'm'
             Data.concat_metadata = true
@@ -84,6 +97,12 @@ end
 
 help if filename.empty?
 
+# measure term if not in pdf
+unless Data.output_mode == :pdf || width_set
+   Data.term_width = `tput cols`.to_i
+   Data.term_height = `tput lines`.to_i
+end
+
 # detect if piped
 unless STDOUT.tty?
    Data.output_mode = :stdout
@@ -96,4 +115,6 @@ process_file filename
 
 if Data.output_mode == :tui || Data.output_mode == :stdout
    display
+elsif Data.output_mode == :pdf
+   pdf_export
 end

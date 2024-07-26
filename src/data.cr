@@ -6,9 +6,10 @@ module Data
       number_lines, line_number, num_width, starts_with, meta, current_lines,
       footnote_symbols, footnotes, footnote_size, wrap, wrap_now,
       last_alignment, prev_hardnl, strip, escape_regex, escape_regex_end,
-      concat_metadata
-   @@term_width : Int32 = `tput cols`.to_i
-   @@term_height : Int32 = `tput lines`.to_i
+      concat_metadata, pdf_name, font_height, pdf_v_margin, pdf_h_margin,
+      font_gap, pdf_width, pdf_height
+   @@term_width : Int32 = 80 # `tput cols`.to_i (not when to pdf)
+   @@term_height : Int32 = 24 #`tput lines`.to_i
    @@plaintext = false
    @@file_line_count = 0
    @@filename = ""
@@ -45,6 +46,13 @@ module Data
    @@escape_regex = Regex.new("\x1b\\[.*?m")
    @@escape_regex_end = Regex.new("\x1b\\[[^m]*?m$")
    @@concat_metadata = false
+   @@pdf_name = "out.pdf"
+   @@font_height = 12
+   @@font_gap = 3
+   @@pdf_v_margin = 20
+   @@pdf_h_margin = 10
+   @@pdf_width = 612
+   @@pdf_height = 792
 end
 
 enum Alingment

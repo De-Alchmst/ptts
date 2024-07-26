@@ -3,12 +3,15 @@ require "./data.cr"
 def escM_to_pdf(esc : String)
    txt = ") Tj\n"
 
-   esc.split(";").each { |e|
+   escs = esc.split(";")
+   while escs.size > 0
+      e = escs.shift
       cl = ""
       case e
       when "0"
          cl = "0 0 0 rg\n"
 
+      # FG standard #
       when "30"
          cl = "0 0 0 rg\n"
       when "31"
@@ -45,9 +48,25 @@ def escM_to_pdf(esc : String)
          cl = "0 1 1 rg\n"
       when "97"
          cl = "1 1 1 rg\n"
+
+      # FG rgb #
+      when "38"
+         _ = escs.shift
+         r = escs.shift.to_i / 255.0
+         g = escs.shift.to_i / 255.0
+         b = escs.shift.to_i / 255.0
+         cl = "#{r} #{g} #{b} rg\n"
+
+      # BG rgb #
+      when "48"
+         _ = escs.shift
+         r = escs.shift.to_i / 255.0
+         g = escs.shift.to_i / 255.0
+         b = escs.shift.to_i / 255.0
+         # cl = "#{r} #{g} #{b} rg\n"
       end
 
       txt += cl
-   }
+   end
    return txt + " ("
 end

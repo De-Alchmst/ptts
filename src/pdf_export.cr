@@ -1,5 +1,6 @@
 require "./data.cr"
 require "./outcome.cr"
+require "./esc_to_pdf.cr"
 
 require "base64"
 
@@ -44,7 +45,7 @@ trailer
 #%%EOF}
 
    # write to file (as latin-1)
-File.write(Data.pdf_name, pdf.gsub("\x1b", ""))
+File.write(Data.pdf_name, pdf)
 end
 
 ##################################
@@ -58,10 +59,13 @@ end
 #      FONT |     position (left, bottom)    END   #
 #       FONT SIZE
 
+def get_y(i : Int32)
+   Data.pdf_height - (Data.pdf_v_margin + i * (Data.font_height+Data.font_gap))
+end
+
 def line_begin(i : Int32)
    "BT\n/F1 #{Data.font_height} Tf\n#{Data.pdf_h_margin} " + \
-   "#{Data.pdf_height \
-      - (Data.pdf_v_margin + i * (Data.font_height + Data.font_gap))} Td\n("
+   "#{get_y i} Td\n("
 end
 
 def line_end
@@ -77,15 +81,24 @@ def outcome_to_pdf
       streams << ""
       c += 1
 
-      Outcome.pages[i].lines.size.times { |j|
+      line_count = 0
+      Outcome.pages[i].lines.each { |line|
+         if get_y(line_count) < Data.pdf_v_margin
+            streams << ""
+            c += 1
+            line_count = 0
+         end
+
          # start line
-         streams[c] += line_begin j
+         streams[c] += line_begin line_count
 
          # insert lines
-         streams[c] += prepare_text Outcome.pages[i].lines[j].align
+         streams[c] += prepare_text line.align
 
          # end line
          streams[c] += line_end
+
+         line_count += 1
       }
    }
 
@@ -95,6 +108,11 @@ end
 def prepare_text(txt : String)
    # escape stuff
    txt = txt.gsub('\\', "\\\\").gsub('(', "\\(").gsub(')', "\\)")
+
+   rgx = Regex.new("\x1b\\[(.*?)m")
+   while esc = txt.match rgx
+      txt = txt.gsub(esc[0], escM_to_pdf(esc[1]))
+   end
 
    return txt
 end

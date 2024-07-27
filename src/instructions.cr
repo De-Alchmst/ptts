@@ -419,10 +419,16 @@ module Insts
 
             extra_space
             Outcome.insert "\x1b[#{c}m"
+            Data.prev_colors[Data.color_mode] = \
+                             Data.active_colors[Data.color_mode]
+            Data.active_colors[Data.color_mode] = c
+            nil
          },
          ->(arg : String) {
             return if Data.plaintext
-            Outcome.insert "\x1b[#{Data.prev_colors[Data.color_mode]}m"
+            Data.active_colors[Data.color_mode] = \
+                               Data.prev_colors[Data.color_mode]
+            Outcome.insert "\x1b[#{Data.active_colors[Data.color_mode]}m"
          }
       ],
 
@@ -434,13 +440,20 @@ module Insts
             extra_space
             if Data.color_mode == :foreground
                Outcome.insert "\x1b[38;2;#{arg}m"
+               Data.prev_colors[:foreground] = Data.active_colors[:foreground]
+               Data.active_colors[:foreground] = "38;2;#{arg}"
             else
                Outcome.insert "\x1b[48;2;#{arg}m"
+               Data.prev_colors[:background] = Data.active_colors[:foreground]
+               Data.active_colors[:background] = "48;2;#{arg}"
             end
+            nil
          },
          ->(arg : String) {
             return if Data.plaintext
-            Outcome.insert "\x1b[#{Data.prev_colors[Data.color_mode]}m"
+            Data.active_colors[Data.color_mode] = \
+                               Data.prev_colors[Data.color_mode]
+            Outcome.insert "\x1b[#{Data.active_colors[Data.color_mode]}m"
          }
       ],
 
@@ -452,14 +465,21 @@ module Insts
             extra_space
             if Data.color_mode == :foreground
                Outcome.insert "\x1b[38;2;#{c}m"
+               Data.prev_colors[:foreground] = Data.active_colors[:foreground]
+               Data.active_colors[:foreground] = "38;2;#{c}"
             else
                Outcome.insert "\x1b[48;2;#{c}m"
+               Data.prev_colors[:background] = Data.active_colors[:foreground]
+               Data.active_colors[:background] = "48;2;#{c}"
             end
+            nil
 
          },
          ->(arg : String) {
             return if Data.plaintext
-            Outcome.insert "\x1b[#{Data.prev_colors[Data.color_mode]}m"
+            Data.active_colors[Data.color_mode] = \
+                               Data.prev_colors[Data.color_mode]
+            Outcome.insert "\x1b[#{Data.active_colors[Data.color_mode]}m"
          }
       ],
 
@@ -471,7 +491,7 @@ module Insts
 
             extra_space
             Outcome.insert "\x1b[#{c}m"
-            Data.prev_colors[Data.color_mode] = c
+            Data.active_colors[Data.color_mode] = c
             nil
          },
          ->(arg : String) {}
@@ -485,10 +505,10 @@ module Insts
             extra_space
             if Data.color_mode == :foreground
                Outcome.insert "\x1b[38;2;#{arg}m"
-               Data.prev_colors[:foreground] = "38;2;#{arg}"
+               Data.active_colors[:foreground] = "38;2;#{arg}"
             else
                Outcome.insert "\x1b[48;2;#{arg}m"
-               Data.prev_colors[:background] = "48;2;#{arg}"
+               Data.active_colors[:background] = "48;2;#{arg}"
             end
             nil
          },
@@ -503,10 +523,10 @@ module Insts
             extra_space
             if Data.color_mode == :foreground
                Outcome.insert "\x1b[38;2;#{c}m"
-               Data.prev_colors[:foreground] = "38;2;#{c}"
+               Data.active_colors[:foreground] = "38;2;#{c}"
             else
                Outcome.insert "\x1b[48;2;#{c}m"
-               Data.prev_colors[:background] = "48;2;#{c}"
+               Data.active_colors[:background] = "48;2;#{c}"
             end
             nil
          },

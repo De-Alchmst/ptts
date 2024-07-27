@@ -7,6 +7,7 @@ def escM_to_pdf(esc : String)
    while escs.size > 0
       e = escs.shift
       cl = ""
+      not_cl = false
       case e
       when "0"
          cl = Data.pdf_default_color
@@ -59,14 +60,20 @@ def escM_to_pdf(esc : String)
 
       # BG rgb #
       when "48"
+         not_cl = true
          _ = escs.shift
          r = escs.shift.to_i / 255.0
          g = escs.shift.to_i / 255.0
          b = escs.shift.to_i / 255.0
-         # cl = "#{r} #{g} #{b} rg\n"
+         cl = "#{r} #{g} #{b} rg\n" + \
+              # "q\n1 0 0 1 0 -30 Tm\n 0 0 200 20 re f\nQ\n" + \
+              Data.pdf_prev_color
+      else
+         not_cl = true
       end
 
       txt += cl
+      Data.pdf_prev_color = cl unless not_cl
    end
    return txt + " ("
 end

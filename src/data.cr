@@ -7,7 +7,8 @@ module Data
       footnote_symbols, footnotes, footnote_size, wrap, wrap_now,
       last_alignment, prev_hardnl, strip, escape_regex, escape_regex_end,
       concat_metadata, pdf_name, font_height, pdf_v_margin, pdf_h_margin,
-      font_gap, pdf_width, pdf_height, pdf_darkmode, pdf_default_color
+      font_gap, pdf_width, pdf_height, pdf_darkmode, pdf_default_color,
+      pdf_prev_color, active_colors
    @@term_width : Int32 = 80 # `tput cols`.to_i (not when to pdf)
    @@term_height : Int32 = 24 #`tput lines`.to_i
    @@plaintext = false
@@ -15,6 +16,7 @@ module Data
    @@filename = ""
    @@color_mode = :foreground
    @@prev_colors = {:foreground => "39", :background => "49"}
+   @@active_colors = {:foreground => "39", :background => "49"}
    @@indent_level = 0
    @@indent_level_length = 1
    @@indent_extra = 0 # extralevel independent indent
@@ -55,6 +57,7 @@ module Data
    @@pdf_height = 792
    @@pdf_darkmode = false
    @@pdf_default_color = "0 0 0 rg\n"
+   @@pdf_prev_color = ""
 end
 
 enum Alingment
@@ -100,7 +103,7 @@ end
 
 def reset_data
    Data.color_mode = :foreground
-   Data.prev_colors = {:foreground => "39", :background => "49"}
+   Data.active_colors = {:foreground => "39", :background => "49"}
    Data.indent_level = 0
    Data.indent_level_length = 1
    Data.indent_extra = 0 # extralevel independent indent

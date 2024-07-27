@@ -108,10 +108,12 @@ help if filename.empty?
 unless Data.output_mode == :pdf
    Data.term_height = `tput lines`.to_i
    Data.term_width = `tput cols`.to_i unless width_set
-end
+else
+   # darkmode
+   Data.pdf_default_color = "1 1 1 rg\n" if Data.pdf_darkmode
 
-# darkmode
-Data.pdf_default_color = "1 1 1 rg\n" if Data.pdf_darkmode
+   Data.pdf_prev_color = Data.pdf_default_color
+end
 
 # detect if piped
 unless STDOUT.tty?

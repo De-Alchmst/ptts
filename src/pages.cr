@@ -42,8 +42,8 @@ class Line
       # if formatting #
       if !Data.plaintext
          @escapes_start = "\x1b[0m"
-         @escapes_middle = "\x1b[#{Data.prev_colors[:foreground]}" \
-                         + ";#{Data.prev_colors[:background]}" \
+         @escapes_middle = "\x1b[#{Data.active_colors[:foreground]}" \
+                         + ";#{Data.active_colors[:background]}" \
                          + (Data.is_bold ? ";1" : "") \
                          + (Data.is_italic ? ";3" : "") \
                          + (Data.is_underlined ? ";4" : "") \

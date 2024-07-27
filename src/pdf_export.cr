@@ -72,19 +72,29 @@ def line_end
    ") Tj\nET\n"
 end
 
+def darkmode_rect
+   "0.2 0.2 0.2 rg\n0 0 #{Data.pdf_width} #{Data.pdf_height} re f\n " + \
+      "#{Data.pdf_default_color}"
+end
+
+def page_begin
+   Data.pdf_darkmode ? darkmode_rect : ""
+end
+
 def outcome_to_pdf
    streams = [] of String
    c = -1
 
    Outcome.pages.size.times {|i|
       # add new page
-      streams << ""
+      streams << page_begin
+
       c += 1
 
       line_count = 0
       Outcome.pages[i].lines.each { |line|
          if get_y(line_count) < Data.pdf_v_margin
-            streams << ""
+            streams << page_begin
             c += 1
             line_count = 0
          end

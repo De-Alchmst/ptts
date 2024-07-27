@@ -13,9 +13,10 @@ def help
       + "       -h, --help        prints this help message\n" \
       + "       -p, --plaintext   do not add escape sequences\n" \
       + "       -w, --width <num> sets output width\n" \
-      + "       -s, --stdout      do not use tui interface" \
-      + "       -m, --meta        concat metadata at the end" \
-      + "       -x, --pdf         export to pdf"
+      + "       -s, --stdout      do not use tui interface\n" \
+      + "       -m, --meta        concat metadata at the end\n" \
+      + "       -x, --pdf         export to pdf\n" \
+      + "       -d, --dark        uses darkmode in export\n"
 
 end
 
@@ -49,6 +50,9 @@ until ARGV.empty?
       when "meta"
          Data.concat_metadata = true
 
+      when "dark"
+         Data.pdf_darkmode = true
+
       else
          puts "unknown flag: #{arg}"
          help
@@ -79,6 +83,9 @@ until ARGV.empty?
          when 'm'
             Data.concat_metadata = true
 
+         when 'd'
+            Data.pdf_darkmode = true
+
          else
             puts "unknown flag: -#{flag}"
             help
@@ -98,10 +105,13 @@ end
 help if filename.empty?
 
 # measure term if not in pdf
-unless Data.output_mode == :pdf || width_set
-   Data.term_width = `tput cols`.to_i
+unless Data.output_mode == :pdf
    Data.term_height = `tput lines`.to_i
+   Data.term_width = `tput cols`.to_i unless width_set
 end
+
+# darkmode
+Data.pdf_default_color = "1 1 1 rg\n" if Data.pdf_darkmode
 
 # detect if piped
 unless STDOUT.tty?

@@ -9,7 +9,7 @@ def escM_to_pdf(esc : String)
       cl = ""
       case e
       when "0"
-         cl = "0 0 0 rg\n"
+         cl = Data.pdf_default_color
 
       # FG standard #
       when "30"
@@ -30,7 +30,7 @@ def escM_to_pdf(esc : String)
          cl = "0.8 0.8 0.8 rg\n"
 
       when "39"
-         cl = "0 0 0 rg\n"
+         cl = Data.pdf_default_color
 
       when "90"
          cl = "0.2 0.2 0.2 rg\n"

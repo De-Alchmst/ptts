@@ -7,7 +7,7 @@ module Data
       footnote_symbols, footnotes, footnote_size, wrap, wrap_now,
       last_alignment, prev_hardnl, strip, escape_regex, escape_regex_end,
       concat_metadata, pdf_name, font_height, pdf_v_margin, pdf_h_margin,
-      font_gap, pdf_width, pdf_height
+      font_gap, pdf_width, pdf_height, pdf_darkmode, pdf_default_color
    @@term_width : Int32 = 80 # `tput cols`.to_i (not when to pdf)
    @@term_height : Int32 = 24 #`tput lines`.to_i
    @@plaintext = false
@@ -53,6 +53,8 @@ module Data
    @@pdf_h_margin = 10
    @@pdf_width = 612
    @@pdf_height = 792
+   @@pdf_darkmode = false
+   @@pdf_default_color = "0 0 0 rg\n"
 end
 
 enum Alingment

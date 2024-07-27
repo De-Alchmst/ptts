@@ -8,7 +8,7 @@ module Data
       last_alignment, prev_hardnl, strip, escape_regex, escape_regex_end,
       concat_metadata, pdf_name, font_height, pdf_v_margin, pdf_h_margin,
       font_gap, pdf_width, pdf_height, pdf_darkmode, pdf_default_color,
-      pdf_prev_color, active_colors
+      pdf_prev_color, active_colors, curr_font
    @@term_width : Int32 = 80 # `tput cols`.to_i (not when to pdf)
    @@term_height : Int32 = 24 #`tput lines`.to_i
    @@plaintext = false
@@ -58,6 +58,7 @@ module Data
    @@pdf_darkmode = false
    @@pdf_default_color = "0 0 0 rg\n"
    @@pdf_prev_color = ""
+   @@curr_font = "/F1"
 end
 
 enum Alingment

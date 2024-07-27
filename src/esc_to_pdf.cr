@@ -68,6 +68,39 @@ def escM_to_pdf(esc : String)
          cl = "#{r} #{g} #{b} rg\n" + \
               # "q\n1 0 0 1 0 -30 Tm\n 0 0 200 20 re f\nQ\n" + \
               Data.pdf_prev_color
+
+      # FONT #
+      when "1" # bold
+         if Data.curr_font == "/F3"
+            Data.curr_font = "/F4"
+         else
+            Data.curr_font = "/F2"
+         end
+         cl = Data.curr_font + " #{Data.font_height} Tf\n"
+
+      when "22" # no-bold
+         if Data.curr_font == "/F4" || Data.curr_font == "/F3"
+            Data.curr_font = "/F3"
+         else
+            Data.curr_font = "/F1"
+         end
+         cl = Data.curr_font + " #{Data.font_height} Tf\n"
+
+      when "3" # italic
+         if Data.curr_font == "/F2"
+            Data.curr_font = "/F4"
+         else
+            Data.curr_font = "/F3"
+         end
+         cl = Data.curr_font + " #{Data.font_height} Tf\n"
+
+      when "23" # no-bold
+         if Data.curr_font == "/F4" || Data.curr_font == "/F2"
+            Data.curr_font = "/F2"
+         else
+            Data.curr_font = "/F1"
+         end
+         cl = Data.curr_font + " #{Data.font_height} Tf\n"
       else
          not_cl = true
       end

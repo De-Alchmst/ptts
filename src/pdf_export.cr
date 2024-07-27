@@ -27,6 +27,15 @@ endobj
 #{font_num} 0 obj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
+#{font_num+1} 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold >>
+endobj
+#{font_num+2} 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Oblique >>
+endobj
+#{font_num+3} 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier-BoldOblique >>
+endobj
 trailer
 << /Root 1 0 R >>
 %%EOF}
@@ -146,7 +155,9 @@ def streams_to_pages(streams : Array(String), font_num : Int32)
       txt += "<< /Type /Page /Parent 2 0 R /MediaBox " + \
              "[0 0 #{Data.pdf_width} #{Data.pdf_height}] " + \
              "/Contents #{i + streams.size} 0 R " + \
-             "/Resources << /Font << /F1 #{font_num} 0 R >> >> >>"
+             "/Resources << /Font " + \
+             "<< /F1 #{font_num} 0 R /F2 #{font_num+1} 0 R " + \
+             "/F3 #{font_num+2} 0 R /F4 #{font_num+3} 0 R >> >> >>"
       txt += "endobj\n"
    }
    return txt.strip

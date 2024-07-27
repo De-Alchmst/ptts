@@ -45,7 +45,7 @@ indented by extra 'num' spaces, negative num decreases indent
 - @pgodd - pagebreak at least once until odd page number
 - @footnote{note} - inserts footnote mark and adds footnote atbottom of page
 
-### terminal only
+### terminal/pdf only
 - @b - makes line bold
 - @bb - begins bold area
 - @eb ends bold area

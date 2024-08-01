@@ -1,5 +1,6 @@
 require "./data.cr"
 require "./outcome.cr"
+require "./esc_to_latex.cr"
 # require "./font_data.cr"
 
 ######################
@@ -28,9 +29,18 @@ def prepare_latex
 \\usepackage{xcolor} % Required for colored text
 \\usepackage{fontspec} % Required for loading external fonts
 \\usepackage[a4paper, margin=#{Data.export_margin}em]{geometry} % Set margins
+% \\usepackage{listings}
 
 % Load the external font
 \\newfontface\\customfont[Path=/tmp/ptts/]{#{Data.font_name}}
+
+% \\lstset{
+%   basicstyle=\\customfont,
+%   columns=fullflexible,
+%   keepspaces=true,
+%   numbers=none,
+%   showstringspaces=false
+% }
 
 \\begin{document}
 
@@ -46,18 +56,29 @@ end
 ############################
 
 def outcome2latex
-   txt = "\\customfont{\n"
+   txt = "\\customfont\n"
 
    Outcome.pages.each_with_index { |page, i|
       page.lines.each { |line|
-         txt +=
-            "\\begin{verbatim}\n#{line2latex(line.align)}\n\\end{verbatim}\n\n"
+         txt += "#{line2latex(line.align)}\n\n"
       }
    }
 
-   return txt + "}"
+   return txt + ""
 end
 
 def line2latex(line : String)
-   line.gsub("\x1b", "").gsub('\\', "\\\\")
+   line = line.gsub ' ', '\t'
+   line = line.gsub '\\', "\\textbackslash "
+   line = line.gsub '^', "\\textasciicircum "
+   line = line.gsub '$', "\\$"
+   line = line.gsub '%', "\\%"
+   line = line.gsub '&', "\\&"
+   line = line.gsub '{', "\\{"
+   line = line.gsub '}', "\\}"
+   line = line.gsub '_', "\\_"
+   line = line.gsub '~', "\\textasciitilde "
+   line = line.gsub '#', "\\#"
+   line = line.gsub '\t', '~'
+   esc2latex line
 end

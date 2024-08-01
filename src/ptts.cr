@@ -1,7 +1,7 @@
 require "./pages.cr"
 require "./display.cr"
 require "./file_handle.cr"
-require "./pdf_export.cr"
+require "./latex_export.cr"
 
 #####################
 # PROCESS ARGUMENTS #
@@ -16,6 +16,7 @@ def help
       + "       -s, --stdout      do not use tui interface\n" \
       + "       -m, --meta        concat metadata at the end\n" \
       + "       -x, --pdf         export to pdf\n" \
+      + "       -l, --latex       export to latex\n" \
       + "       -d, --dark        uses darkmode in export\n"
 
 end
@@ -47,11 +48,14 @@ until ARGV.empty?
       when "pdf"
          Data.output_mode = :pdf
 
+      when "latex"
+         Data.output_mode = :latex
+
       when "meta"
          Data.concat_metadata = true
 
       when "dark"
-         Data.pdf_darkmode = true
+         Data.export_darkmode = true
 
       else
          puts "unknown flag: #{arg}"
@@ -80,11 +84,14 @@ until ARGV.empty?
          when 'x'
             Data.output_mode = :pdf
 
+         when 'l'
+            Data.output_mode = :latex
+
          when 'm'
             Data.concat_metadata = true
 
          when 'd'
-            Data.pdf_darkmode = true
+            Data.export_darkmode = true
 
          else
             puts "unknown flag: -#{flag}"
@@ -104,20 +111,15 @@ end
 
 help if filename.empty?
 
-# measure term if not in pdf
-unless Data.output_mode == :pdf
-   Data.term_height = `tput lines`.to_i
-   Data.term_width = `tput cols`.to_i unless width_set
-else
-   # darkmode
-   Data.pdf_default_color = "1 1 1 rg\n" if Data.pdf_darkmode
-
-   Data.pdf_prev_color = Data.pdf_default_color
-end
-
 # detect if piped
 unless STDOUT.tty?
    Data.output_mode = :stdout
+end
+
+# measure term if not in pdf or latex
+unless Data.output_mode == :pdf || Data.output_mode == :latex
+   Data.term_height = `tput lines`.to_i
+   Data.term_width = `tput cols`.to_i unless width_set
 end
 
 #########################
@@ -127,6 +129,12 @@ process_file filename
 
 if Data.output_mode == :tui || Data.output_mode == :stdout
    display
-elsif Data.output_mode == :pdf
-   pdf_export
+else
+   prepare_latex
+
+   if Data.output_mode == :pdf
+      system "xelatex /tmp/ptts/#{Data.export_name}.tex"
+   else
+      #latex_export
+   end
 end

@@ -6,6 +6,7 @@ require "./inst_parse.cr"
 def process_file(filename : String, contents="")
    Outcome.init
    Data.filename = filename
+   Data.export_name = filename.sub /\.[^\.]*$/, ""
 
    #################
    # READ THE FILE #

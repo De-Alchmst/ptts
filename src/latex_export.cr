@@ -42,7 +42,7 @@ def prepare_latex
 \\definecolor{nmagenta}{rgb}{0.8,0,0.8}
 \\definecolor{ncyan}{rgb}{0,0.8,0.8}
 \\definecolor{nwhite}{rgb}{0.8,0.8,0.8}
-\
+
 \\definecolor{bblack}{rgb}{0.2,0.2,0.2}
 \\definecolor{bred}{rgb}{1,0,0}
 \\definecolor{bgreen}{rgb}{0,1,0}

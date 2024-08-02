@@ -5,6 +5,11 @@ def esc2latex(line : String)
    tokens = line.split "\x1b"
    outcome = tokens.shift
 
+   is_italic = false
+   is_bold = false
+   is_underline = false
+   reset = false
+
    tokens.each { |token|
 
       splt = token.partition /m/
@@ -18,81 +23,126 @@ def esc2latex(line : String)
          case escs.shift
          when "0"
             outcome += "}" * num_of_bracs
+            is_italic = false
+            is_bold = false
+            is_underline = false
+            Data.export_last_fg = "\\textcolor{fgdefault}{"
+            Data.export_last_bg = "\\colorbox{bgdefault}{"
             num_of_bracs = -1
          when "39"
-            outcome += "\\textcolor{fgdefault}{"
+            outcome += sf("\\textcolor{fgdefault}{")
+         when "49"
+            sb("\\colorbox{bgdefault}{")
+            reset = true
+
+         # font #
+         when "1"
+            outcome += "\\textbf{"
+            is_bold = true
+         when "3"
+            outcome += "\\textit{"
+            is_italic = true
+         when "4"
+            outcome += "\\underline{"
+            is_underline = true
+
+         when "22"
+            is_bold = false
+            reset = true
+         when "23"
+            is_italic = false
+            reset = true
+         when "24"
+            is_underline = false
+            reset = true
 
          # fg normal #
          when "30"
-            outcome += "\\textcolor{nblack}{"
+            outcome += sf("\\textcolor{nblack}{")
          when "31"
-            outcome += "\\textcolor{nred}{"
+            outcome += sf("\\textcolor{nred}{")
          when "32"
-            outcome += "\\textcolor{ngreen}{"
+            outcome += sf("\\textcolor{ngreen}{")
          when "33"
-            outcome += "\\textcolor{nyellow}{"
+            outcome += sf("\\textcolor{nyellow}{")
          when "34"
-            outcome += "\\textcolor{nblue}{"
+            outcome += sf("\\textcolor{nblue}{")
          when "35"
-            outcome += "\\textcolor{nmagenta}{"
+            outcome += sf("\\textcolor{nmagenta}{")
          when "36"
-            outcome += "\\textcolor{ncyan}{"
+            outcome += sf("\\textcolor{ncyan}{")
          when "37"
-            outcome += "\\textcolor{nwhite}{"
+            outcome += sf("\\textcolor{nwhite}{")
 
          # fg bright #
          when "90"
-            outcome += "\\textcolor{bblack}{"
+            outcome += sf("\\textcolor{bblack}{")
          when "91"
-            outcome += "\\textcolor{bred}{"
+            outcome += sf("\\textcolor{bred}{")
          when "92"
-            outcome += "\\textcolor{bgreen}{"
+            outcome += sf("\\textcolor{bgreen}{")
          when "93"
-            outcome += "\\textcolor{byellow}{"
+            outcome += sf("\\textcolor{byellow}{")
          when "94"
-            outcome += "\\textcolor{bblue}{"
+            outcome += sf("\\textcolor{bblue}{")
          when "95"
-            outcome += "\\textcolor{bmagenta}{"
+            outcome += sf("\\textcolor{bmagenta}{")
          when "96"
-            outcome += "\\textcolor{bcyan}{"
+            outcome += sf("\\textcolor{bcyan}{")
          when "97"
-            outcome += "\\textcolor{bwhite}{"
+            outcome += sf("\\textcolor{bwhite}{")
 
          # bg normal #
          when "40"
-            outcome += "\\colorbox{nblack}{"
+            sb("\\colorbox{nblack}{")
+            reset = true
          when "41"
-            outcome += "\\colorbox{nred}{"
+            sb("\\colorbox{nred}{")
+            reset = true
          when "42"
-            outcome += "\\colorbox{ngreen}{"
+            sb("\\colorbox{ngreen}{")
+            reset = true
          when "43"
-            outcome += "\\colorbox{nyellow}{"
+            sb("\\colorbox{nyellow}{")
+            reset = true
          when "44"
-            outcome += "\\colorbox{nblue}{"
+            sb("\\colorbox{nblue}{")
+            reset = true
          when "45"
-            outcome += "\\colorbox{nmagenta}{"
+            sb("\\colorbox{nmagenta}{")
+            reset = true
          when "46"
-            outcome += "\\colorbox{ncyan}{"
+            sb("\\colorbox{ncyan}{")
+            reset = true
          when "47"
-            outcome += "\\colorbox{nwhite}{"
+            sb("\\colorbox{nwhite}{")
+            reset = true
 
          # bg bright #
          when "100"
-            outcome += "\\colorbox{bblack}{"
+            sb("\\colorbox{bblack}{")
+            reset = true
          when "101"
-            outcome += "\\colorbox{bred}{"
+            sb("\\colorbox{bred}{")
+            reset = true
          when "102"
-            outcome += "\\colorbox{bgreen}{"
+            sb("\\colorbox{bgreen}{")
+            reset = true
          when "103"
-            outcome += "\\colorbox{byellow}{"
+            sb("\\colorbox{byellow}{")
+            reset = true
          when "104"
-            outcome += "\\colorbox{bblue}{"
+            sb("\\colorbox{bblue}{")
+            reset = true
          when "105"
-            outcome += "\\colorbox{bmagenta}{"
+            sb("\\colorbox{bmagenta}{")
+            reset = true
          when "106"
-            outcome += "\\colorbox{bcyan}{"
+            sb("\\colorbox{bcyan}{")
+            reset = true
          when "107"
-            outcome += "\\colorbox{bwhite}{"
+            sb("\\colorbox{bwhite}{")
+            reset = true
 
          # RGB #
          when "38"
@@ -100,19 +150,29 @@ def esc2latex(line : String)
             r = escs.shift
             g = escs.shift
             b = escs.shift
-            outcome += "\\textcolor[RGB]{#{r},#{g},#{b}}{"
+            outcome += sf("\\textcolor[RGB]{#{r},#{g},#{b}}{")
 
          when "48"
             escs.shift
             r = escs.shift
             g = escs.shift
             b = escs.shift
-            outcome += "\\colorbox[RGB]{#{r},#{g},#{b}}{"
+            sb("\\colorbox[RGB]{#{r},#{g},#{b}}{")
+            reset = true
 
          else 
             num_of_bracs -= 1
 
          end
+
+         if reset
+            reset = false
+            outcome += "}" * num_of_bracs
+
+            t = construct_beginning is_bold, is_italic, is_underline
+            num_of_bracs = t.count('{') - t.count('}') - 1
+            outcome += t
+         end      
 
          num_of_bracs += 1
       end
@@ -121,5 +181,29 @@ def esc2latex(line : String)
    }
    outcome += "}" * num_of_bracs
 
-   return outcome
+   # remove ampty colorboxes
+   return outcome.gsub /\\colorbox(?:\[RGB\])?\{[^\}]+\}\{(?:\\\w+\{\})*\}/, ""
+end
+
+def sf(txt : String)
+   Data.export_last_fg = txt
+end
+
+def sb(txt : String)
+   Data.export_last_bg = txt
+end
+
+def construct_beginning(is_bold, is_italic, is_underline)
+   txt = Data.export_last_fg + Data.export_last_bg
+   if is_bold
+      txt += "\\textbf{"
+   end
+   if is_italic
+      txt += "\\textit{"
+   end
+   if is_underline
+      txt += "\\underline{"
+   end
+
+   txt
 end

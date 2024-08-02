@@ -7,7 +7,7 @@ module Data
       footnote_symbols, footnotes, footnote_size, wrap, wrap_now,
       last_alignment, prev_hardnl, strip, escape_regex, escape_regex_end,
       concat_metadata, active_colors, export_name, default_font, font_name,
-      export_darkmode, export_margin
+      export_darkmode, export_margin, export_last_fg, export_last_bg
    @@term_width : Int32 = 80 # `tput cols`.to_i (not when to pdf)
    @@term_height : Int32 = 24 #`tput lines`.to_i
    @@plaintext = false
@@ -52,6 +52,8 @@ module Data
    @@font_name = "default.otf"
    @@export_darkmode = false
    @@export_margin = 1.0
+   @@export_last_fg = "\\textcolor{fgdefault}{"
+   @@export_last_bg = "\\colorbox{bgdefault}{"
 end
 
 enum Alingment

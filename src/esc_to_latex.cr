@@ -9,6 +9,7 @@ def esc2latex(line : String)
    is_bold = false
    is_underline = false
    reset = false
+   strip_space = false
 
    tokens.each { |token|
 
@@ -49,12 +50,15 @@ def esc2latex(line : String)
          when "22"
             is_bold = false
             reset = true
+            strip_space = true
          when "23"
             is_italic = false
             reset = true
+            strip_space = true
          when "24"
             is_underline = false
             reset = true
+            strip_space = true
 
          # fg normal #
          when "30"
@@ -175,6 +179,11 @@ def esc2latex(line : String)
          end      
 
          num_of_bracs += 1
+
+         if strip_space && txt.size > 0 && txt[0] == '~'
+            txt = txt[1..]
+         end
+         strip_space = false
       end
 
       outcome += txt
@@ -182,7 +191,7 @@ def esc2latex(line : String)
    outcome += "}" * num_of_bracs
 
    # remove unneeded spaces
-   outcome = outcome.gsub /[^\\]\{~/ {|m| m[(0..m.size - 2)] }
+   # outcome = outcome.gsub /[^\\]\{~/ {|m| m[(0..m.size - 2)] }
    # remove ampty colorboxes
    return outcome.gsub \
       /\\colorbox(?:\[RGB\])?\{[^\}]+\}\{(?:\\\w+(?:\{\})?\ ?)*\}/, ""

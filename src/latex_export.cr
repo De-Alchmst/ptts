@@ -32,7 +32,7 @@ def prepare_latex
 \\usepackage{xcolor} % Required for colored text
 \\usepackage{fontspec} % Required for loading external fonts
 \\usepackage[a4paper, margin=#{Data.export_margin}em]{geometry} % Set margins
-\\usepackage{setspace}
+\\usepackage[skip=0pt]{parskip}
 
 % Load the external font
 \\setmainfont{#{Data.font_name}}[

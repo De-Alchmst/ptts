@@ -182,7 +182,8 @@ def esc2latex(line : String)
    outcome += "}" * num_of_bracs
 
    # remove ampty colorboxes
-   return outcome.gsub /\\colorbox(?:\[RGB\])?\{[^\}]+\}\{(?:\\\w+\{\})*\}/, ""
+   return outcome.gsub \
+      /\\colorbox(?:\[RGB\])?\{[^\}]+\}\{(?:\\\w+(?:\{\})?\ ?)*\}/, ""
 end
 
 def sf(txt : String)

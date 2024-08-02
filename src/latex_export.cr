@@ -12,7 +12,10 @@ def prepare_tmp
    end
 
    if Data.default_font
-      `cp ../data/FiraMono-Regular.otf /tmp/ptts/#{Data.font_name}`
+      `cp ../data/AnonymousPro-Regular.ttf /tmp/ptts/`
+      `cp ../data/AnonymousPro-Bold.ttf /tmp/ptts/`
+      `cp ../data/AnonymousPro-Italic.ttf /tmp/ptts/`
+      `cp ../data/AnonymousPro-BoldItalic.ttf /tmp/ptts/`
       # File.open("/tmp/ptts/#{Data.font_name}", "wb") { |f|
       #    f.write FontData.data
       # }
@@ -32,7 +35,14 @@ def prepare_latex
 \\usepackage{setspace}
 
 % Load the external font
-\\newfontface\\customfont[Path=/tmp/ptts/]{#{Data.font_name}}
+\\setmainfont{#{Data.font_name}}[
+   Path=/tmp/ptts/,
+   Extension = #{Data.font_extension},
+   UprightFont=*-Regular,
+   BoldFont=*-Bold,
+   ItalicFont=*-Italic,
+   BoldItalicFont=*-BoldItalic
+]
 
 \\definecolor{nblack}{rgb}{0,0,0}
 \\definecolor{nred}{rgb}{0.8,0,0}
@@ -60,8 +70,7 @@ def prepare_latex
 {
 \\pagecolor{bgdefault}
 \\color{fgdefault}
-\\fontsize{10pt}{10pt}
-\\customfont
+% \\fontsize{11pt}{11pt}
 #{document}
 }
 
@@ -99,5 +108,6 @@ def line2latex(line : String)
    line = line.gsub '~', "\\textasciitilde "
    line = line.gsub '#', "\\#"
    line = line.gsub '\t', '~'
+   line = line.gsub /-(?=-)/, "\\textendash "
    esc2latex line
 end

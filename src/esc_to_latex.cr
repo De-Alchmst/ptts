@@ -28,12 +28,12 @@ def esc2latex(line : String)
             is_bold = false
             is_underline = false
             Data.export_last_fg = "\\textcolor{fgdefault}{"
-            Data.export_last_bg = "\\colorbox{bgdefault}{"
+            Data.export_last_bg = "\\colorbox{bgdefault}{\\strut "
             num_of_bracs = -1
          when "39"
             outcome += sf("\\textcolor{fgdefault}{")
          when "49"
-            sb("\\colorbox{bgdefault}{")
+            sb("\\colorbox{bgdefault}{\\strut ")
             reset = true
 
          # font #
@@ -98,54 +98,54 @@ def esc2latex(line : String)
 
          # bg normal #
          when "40"
-            sb("\\colorbox{nblack}{")
+            sb("\\colorbox{nblack}{\\strut ")
             reset = true
          when "41"
-            sb("\\colorbox{nred}{")
+            sb("\\colorbox{nred}{\\strut ")
             reset = true
          when "42"
-            sb("\\colorbox{ngreen}{")
+            sb("\\colorbox{ngreen}{\\strut ")
             reset = true
          when "43"
-            sb("\\colorbox{nyellow}{")
+            sb("\\colorbox{nyellow}{\\strut ")
             reset = true
          when "44"
-            sb("\\colorbox{nblue}{")
+            sb("\\colorbox{nblue}{\\strut ")
             reset = true
          when "45"
-            sb("\\colorbox{nmagenta}{")
+            sb("\\colorbox{nmagenta}{\\strut ")
             reset = true
          when "46"
-            sb("\\colorbox{ncyan}{")
+            sb("\\colorbox{ncyan}{\\strut ")
             reset = true
          when "47"
-            sb("\\colorbox{nwhite}{")
+            sb("\\colorbox{nwhite}{\\strut ")
             reset = true
 
          # bg bright #
          when "100"
-            sb("\\colorbox{bblack}{")
+            sb("\\colorbox{bblack}{\\strut ")
             reset = true
          when "101"
-            sb("\\colorbox{bred}{")
+            sb("\\colorbox{bred}{\\strut ")
             reset = true
          when "102"
-            sb("\\colorbox{bgreen}{")
+            sb("\\colorbox{bgreen}{\\strut ")
             reset = true
          when "103"
-            sb("\\colorbox{byellow}{")
+            sb("\\colorbox{byellow}{\\strut ")
             reset = true
          when "104"
-            sb("\\colorbox{bblue}{")
+            sb("\\colorbox{bblue}{\\strut ")
             reset = true
          when "105"
-            sb("\\colorbox{bmagenta}{")
+            sb("\\colorbox{bmagenta}{\\strut ")
             reset = true
          when "106"
-            sb("\\colorbox{bcyan}{")
+            sb("\\colorbox{bcyan}{\\strut ")
             reset = true
          when "107"
-            sb("\\colorbox{bwhite}{")
+            sb("\\colorbox{bwhite}{\\strut ")
             reset = true
 
          # RGB #
@@ -161,7 +161,7 @@ def esc2latex(line : String)
             r = escs.shift
             g = escs.shift
             b = escs.shift
-            sb("\\colorbox[RGB]{#{r},#{g},#{b}}{")
+            sb("\\colorbox[RGB]{#{r},#{g},#{b}}{\\strut ")
             reset = true
 
          else 

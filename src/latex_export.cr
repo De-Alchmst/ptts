@@ -29,9 +29,9 @@ def prepare_latex
 
    latex = %{
 \\documentclass{article}
-\\usepackage{xcolor} % Required for colored text
-\\usepackage{fontspec} % Required for loading external fonts
-\\usepackage[a4paper, margin=#{Data.export_margin}em]{geometry} % Set margins
+\\usepackage{xcolor}
+\\usepackage{fontspec}
+\\usepackage[a4paper, margin=#{Data.export_margin}em]{geometry}
 \\usepackage[skip=0pt]{parskip}
 
 % Load the external font
@@ -71,6 +71,8 @@ def prepare_latex
 \\pagecolor{bgdefault}
 \\color{fgdefault}
 % \\fontsize{11pt}{11pt}
+
+\\fboxsep0pt
 #{document}
 }
 

@@ -181,6 +181,8 @@ def esc2latex(line : String)
    }
    outcome += "}" * num_of_bracs
 
+   # remove unneeded spaces
+   outcome = outcome.gsub /[^\\]\{~/ {|m| m[(0..m.size - 2)] }
    # remove ampty colorboxes
    return outcome.gsub \
       /\\colorbox(?:\[RGB\])?\{[^\}]+\}\{(?:\\\w+(?:\{\})?\ ?)*\}/, ""

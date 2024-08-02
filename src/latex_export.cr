@@ -29,22 +29,41 @@ def prepare_latex
 \\usepackage{xcolor} % Required for colored text
 \\usepackage{fontspec} % Required for loading external fonts
 \\usepackage[a4paper, margin=#{Data.export_margin}em]{geometry} % Set margins
-% \\usepackage{listings}
+\\usepackage{setspace}
 
 % Load the external font
 \\newfontface\\customfont[Path=/tmp/ptts/]{#{Data.font_name}}
 
-% \\lstset{
-%   basicstyle=\\customfont,
-%   columns=fullflexible,
-%   keepspaces=true,
-%   numbers=none,
-%   showstringspaces=false
-% }
+\\definecolor{nblack}{rgb}{0,0,0}
+\\definecolor{nred}{rgb}{0.8,0,0}
+\\definecolor{ngreen}{rgb}{0,0.8,0}
+\\definecolor{nyellow}{rgb}{0.8,0.8,0}
+\\definecolor{nblue}{rgb}{0,0,0.8}
+\\definecolor{nmagenta}{rgb}{0.8,0,0.8}
+\\definecolor{ncyan}{rgb}{0,0.8,0.8}
+\\definecolor{nwhite}{rgb}{0.8,0.8,0.8}
+\
+\\definecolor{bblack}{rgb}{0.2,0.2,0.2}
+\\definecolor{bred}{rgb}{1,0,0}
+\\definecolor{bgreen}{rgb}{0,1,0}
+\\definecolor{byellow}{rgb}{1,1,0}
+\\definecolor{bblue}{rgb}{0,0,1}
+\\definecolor{bmagenta}{rgb}{1,0,1}
+\\definecolor{bcyan}{rgb}{0,1,1}
+\\definecolor{bwhite}{rgb}{1,1,1}
+
+\\definecolor{fgdefault}{rgb}{#{Data.export_darkmode ? "1,1,1" : "0,0,0"}}
+\\definecolor{bgdefault}{rgb}{#{Data.export_darkmode ? "0.1,0.1,0.2" : "1,1,1"}}
 
 \\begin{document}
 
+{
+\\pagecolor{bgdefault}
+\\color{fgdefault}
+\\fontsize{10pt}{10pt}
+\\customfont
 #{document}
+}
 
 \\end{document}}
 
@@ -56,7 +75,7 @@ end
 ############################
 
 def outcome2latex
-   txt = "\\customfont\n"
+   txt = ""
 
    Outcome.pages.each_with_index { |page, i|
       page.lines.each { |line|

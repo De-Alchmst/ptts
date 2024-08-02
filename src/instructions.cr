@@ -699,9 +699,13 @@ module Insts
 
             num = arg.to_i
             num += 1 unless Outcome.pages.last.lines.last.empty
+
+            Outcome.new_block
+
             num.times {
-               Data.wrap_now = true
-               Outcome.pages.last.lines << Line.new("", 0, Outcome.alingment)
+               Outcome.pages.last.lines.insert \
+                  Outcome.pages.last.lines.size-1, \
+                  Line.new("", 0, Outcome.alingment)
             }
          },
          ->(arg : String) {}

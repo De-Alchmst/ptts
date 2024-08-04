@@ -31,10 +31,13 @@ def prepare_latex
 \\documentclass{article}
 \\usepackage{xcolor}
 \\usepackage{fontspec}
-\\usepackage[a4paper, margin=#{Data.export_margin}em]{geometry}
+\\usepackage[a4paper, margin=#{Data.export_margin}em, bottom=#{
+   Data.export_margin >= 4 ? Data.export_margin : 4
+}em]{geometry}
 \\usepackage[skip=0pt]{parskip}
 \\usepackage{footmisc}
 \\usepackage{ifthen}
+\\usepackage{fancyhdr}
 
 % Load the external font
 \\setmainfont{#{Data.font_name}}[
@@ -79,6 +82,11 @@ def prepare_latex
   \\endgroup
 }
 
+% page numbermypagenumcolor
+\\pagestyle{fancy}
+\\fancyhf{}
+\\fancyfoot[C]{\\textcolor{fgdefault}{\\thepage}}
+
 \\renewcommand{\\footnoterule}{%
     \\kern -4pt
     \\color{fgdefault}%
@@ -90,7 +98,6 @@ def prepare_latex
 \\newcommand{\\forceevenpage}{
   \\ifthenelse{\\isodd{\\thepage}}{
     \\hbox{}\\newpage
-    \\thispagestyle{empty}
     \\hbox{}\\newpage
   }{
     \\newpage
@@ -102,7 +109,6 @@ def prepare_latex
     \\newpage
   }{
     \\hbox{}\\newpage
-    \\thispagestyle{empty}
     \\hbox{}\\newpage
   }
 }

@@ -33,6 +33,7 @@ def prepare_latex
 \\usepackage{fontspec}
 \\usepackage[a4paper, margin=#{Data.export_margin}em]{geometry}
 \\usepackage[skip=0pt]{parskip}
+\\usepackage{footmisc}
 
 % Load the external font
 \\setmainfont{#{Data.font_name}}[
@@ -65,12 +66,32 @@ def prepare_latex
 \\definecolor{fgdefault}{rgb}{#{Data.export_darkmode ? "1,1,1" : "0,0,0"}}
 \\definecolor{bgdefault}{rgb}{#{Data.export_darkmode ? "0.1,0.1,0.2" : "1,1,1"}}
 
+% footnotes
+\\renewcommand{\\footnotesize}{\\normalsize}
+\\setlength{\\footnotemargin}{0em}
+
+% https://tex.stackexchange.com/questions/30720/footnote-without-a-marker
+\\newcommand\\blfootnote[1]{%
+  \\begingroup
+  \\renewcommand\\thefootnote{}\\footnote{\\textcolor{fgdefault}{#1}}%
+  \\addtocounter{footnote}{-1}%
+  \\endgroup
+}
+
+\\renewcommand{\\footnoterule}{%
+    \\kern -4pt
+    \\color{fgdefault}%
+    \\hrule width \\linewidth height 0.4pt
+    \\kern 3.4pt
+}
+
 \\begin{document}
 
 {
 \\pagecolor{bgdefault}
 \\color{fgdefault}
 % \\fontsize{11pt}{11pt}
+
 
 \\fboxsep0pt
 #{document}
@@ -90,14 +111,22 @@ def outcome2latex
 
    Outcome.pages.each_with_index { |page, i|
       page.lines.each { |line|
-         txt += "#{line2latex(line.align)}\n\n"
+         # footnote
+         unless line.footnotes.empty?
+            line.footnotes.each { |fn|
+               txt += "\\blfootnote{#{
+                  txt2latex fn.text.gsub(/\s*\n\s*/, " ").strip}}\n"
+            }
+         end
+         # text
+         txt += "#{txt2latex(line.align)}\n\n"
       }
    }
 
    return txt + ""
 end
 
-def line2latex(line : String)
+def txt2latex(line : String)
    line = line.gsub ' ', '\t'
    line = line.gsub '\\', "\\textbackslash "
    line = line.gsub '^', "\\textasciicircum "

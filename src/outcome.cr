@@ -22,6 +22,9 @@ module Outcome
    end
 
    def self.new_page(page_type = :regular)
+      if pages.last.lines.last.empty
+         pages.last.lines.pop
+      end
       @@pages << Page.new(@@alingment, @@indent, page_type)
    end
 

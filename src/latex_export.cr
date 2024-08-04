@@ -34,6 +34,7 @@ def prepare_latex
 \\usepackage[a4paper, margin=#{Data.export_margin}em]{geometry}
 \\usepackage[skip=0pt]{parskip}
 \\usepackage{footmisc}
+\\usepackage{ifthen}
 
 % Load the external font
 \\setmainfont{#{Data.font_name}}[
@@ -85,6 +86,27 @@ def prepare_latex
     \\kern 3.4pt
 }
 
+% page breaks
+\\newcommand{\\forceevenpage}{
+  \\ifthenelse{\\isodd{\\thepage}}{
+    \\hbox{}\\newpage
+    \\thispagestyle{empty}
+    \\hbox{}\\newpage
+  }{
+    \\newpage
+  }
+}
+
+\\newcommand{\\forceoddpage}{
+  \\ifthenelse{\\isodd{\\thepage}}{
+    \\newpage
+  }{
+    \\hbox{}\\newpage
+    \\thispagestyle{empty}
+    \\hbox{}\\newpage
+  }
+}
+
 \\begin{document}
 
 {
@@ -121,6 +143,17 @@ def outcome2latex
          # text
          txt += "#{txt2latex(line.align)}\n\n"
       }
+
+      if i < Outcome.pages.size - 1
+         case Outcome.pages[i+1].page_type
+         when :regular
+            txt += "\\newpage\n"
+         when :odd
+            txt += "\\forceoddpage\n"
+         when :even
+            txt += "\\forceevenpage\n"
+         end
+      end
    }
 
    return txt + ""

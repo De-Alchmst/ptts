@@ -72,7 +72,7 @@ indented by extra 'num' spaces, negative num decreases indent
 - @setindl{num} - sets indentation level to given number of spaces
 
 - @set{name;val} - sets value of variable to come value separated by first ';'
-- @eval{name} - evaluetes certain variable contents as instructions
+- @x{name} - evaluetes certain variable contents as instructions
 - @val{name} - inserts value of certain variable as text
 
 - @hardnl - stops joining lines like normal and seperates blocks by single newline

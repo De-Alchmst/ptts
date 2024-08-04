@@ -675,7 +675,7 @@ module Insts
          ->(arg : String) {}
       ],
 
-      "eval" => [
+      "x" => [
          ->(arg : String) {
             unless Data.vars.has_key? arg
                abort "unset variable #{arg} " \

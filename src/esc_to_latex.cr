@@ -194,7 +194,7 @@ def esc2latex(line : String)
    # outcome = outcome.gsub /[^\\]\{~/ {|m| m[(0..m.size - 2)] }
    # remove ampty colorboxes
    return outcome.gsub \
-      /\\colorbox(?:\[RGB\])?\{[^\}]+\}\{(?:\\\w+(?:\{\})?\ ?)*\}/, ""
+      /\\colorbox(?:\[RGB\])?\{[^\}]+\}\{(?:\\strut(?:\{\})?\ ?)*\}/, ""
 end
 
 def sf(txt : String)

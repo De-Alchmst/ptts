@@ -1,7 +1,8 @@
 require "./data.cr"
 require "./outcome.cr"
 require "./esc_to_latex.cr"
-# require "./font_data.cr"
+
+require "path"
 
 ######################
 # put stuff together #
@@ -10,19 +11,10 @@ def prepare_tmp
    unless Dir.exists? "/tmp/ptts"
       Dir.mkdir "/tmp/ptts"
    end
-
-   if Data.default_font
-      `cp ../data/#{Data.font_name}-Regular.ttf /tmp/ptts/`
-      `cp ../data/#{Data.font_name}-Bold.ttf /tmp/ptts/`
-      `cp ../data/#{Data.font_name}-Italic.ttf /tmp/ptts/`
-      `cp ../data/#{Data.font_name}-BoldItalic.ttf /tmp/ptts/`
-      # File.open("/tmp/ptts/#{Data.font_name}", "wb") { |f|
-      #    f.write FontData.data
-      # }
-   end
 end
 
 def prepare_latex
+   dat = locate_font
    prepare_tmp
 
    document = outcome2latex
@@ -46,12 +38,14 @@ def prepare_latex
 
 % Load the external font
 \\setmainfont{#{Data.font_name}}[
-   Path=/tmp/ptts/,
-   Extension = #{Data.font_extension},
-   UprightFont=*-Regular,
-   BoldFont=*-Bold,
-   ItalicFont=*-Italic,
-   BoldItalicFont=*-BoldItalic
+   Path=#{dat.dir},
+   Extension=#{dat.ext},
+   UprightFont=*#{dat.regular_word},
+   BoldFont=*#{dat.bold ? "-Bold" : dat.regular_word},
+   ItalicFont=*#{dat.italic ? "-Italic" :
+                 (dat.oblique ? "-Oblique" : dat.regular_word)},
+   BoldItalicFont=*#{dat.bolditalic ? "-BoldItalic" :
+                     (dat.boldoblique ? "-BoldOblique" : dat.regular_word)},
 ]
 
 \\definecolor{nblack}{rgb}{0,0,0}
@@ -76,7 +70,7 @@ def prepare_latex
 \\definecolor{bgdefault}{rgb}{#{Data.export_darkmode ? "0.1,0.1,0.2" : "1,1,1"}}
 
 % footnotes
-\\renewcommand{\\footnotesize}{\\fontsize{#{fontsize}}{#{fontsize}}}
+\\renewcommand{\\footnotesize}{\\fontsize{#{fontsize}pt}{#{fontsize}pt}}
 \\setlength{\\footnotemargin}{0em}
 
 % https://tex.stackexchange.com/questions/30720/footnote-without-a-marker
@@ -121,7 +115,7 @@ def prepare_latex
 \\begin{document}
 
 {
-\\fontsize{#{fontsize}}{#{fontsize}}\\selectfont
+\\fontsize{#{fontsize}pt}{#{fontsize}pt}\\selectfont
 \\pagecolor{bgdefault}
 \\color{fgdefault}
 
@@ -188,6 +182,64 @@ def txt2latex(line : String, nobreak = false)
    line = line.gsub '~', "\\textasciitilde "
    line = line.gsub '#', "\\#"
    line = line.gsub '\t', '~'
-   line = line.gsub /-(?=-)/, "\\textendash "
+   line = line.gsub '-', "\\textendash "
    esc2latex line
+end
+
+struct FontData
+   property dir, ext, regular_word, bold, italic, bolditalic,
+      oblique, boldoblique
+
+   def initialize(@dir : String, @ext : String, @regular_word : String,
+         @bold : Bool, @italic : Bool, @bolditalic : Bool,
+         @oblique : Bool, @boldoblique : Bool)
+   end
+end
+
+def locate_font
+   font_dirs = ["./", "../data/", __DIR__ + "/ptts-fonts/", Data.file_path]
+
+   ["/usr/share/fonts/", "/usr/local/share/fonts/",
+    "#{ENV["HOME"]}/.local/share/fonts/"].each { |dir|
+      Dir.children(dir).each { |child|
+         font_dirs << "#{dir}#{child}/"
+      }
+   }
+
+   font_extensions = [".ttf", ".otf", ".TTF", ".OTF"]
+
+   dat = FontData.new "", "", "-Regular", false, false, false, false, false
+
+   font_dirs.each { |dir|
+      next unless Dir.exists? dir
+      font_extensions.each { |ext|
+         puts "#{dir}#{Data.font_name}#{ext}"
+         if File.exists? "#{dir}#{Data.font_name}-Regular#{ext}"
+            dat.dir = dir
+            dat.ext = ext
+            break
+         end
+         if File.exists? "#{dir}#{Data.font_name}#{ext}"
+            dat.dir = dir
+            dat.ext = ext
+            dat.regular_word = ""
+            break
+         end
+      }
+      break if dat.dir != ""
+   }
+
+   if dat.dir == ""
+      abort "font not found: #{Data.font_name} "
+   end
+
+   dat.bold = File.exists? "#{dat.dir}#{Data.font_name}-Bold#{dat.ext}"
+   dat.italic = File.exists? "#{dat.dir}#{Data.font_name}-Italic#{dat.ext}"
+   dat.oblique = File.exists? "#{dat.dir}#{Data.font_name}-Oblique#{dat.ext}"
+   dat.bolditalic = File.exists? \
+      "#{dat.dir}#{Data.font_name}-BoldItalic#{dat.ext}"
+   dat.boldoblique = File.exists? \
+      "#{dat.dir}#{Data.font_name}-BoldOblique#{dat.ext}"
+
+   return dat
 end

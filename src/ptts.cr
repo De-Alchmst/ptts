@@ -8,16 +8,17 @@ require "./latex_export.cr"
 #####################
 
 def help
-  abort "usage: ptts [flags] <filename>\n" \
+  abort "usage: ptts [flags <flag args>] <filename>\n" \
       + "flags: \n" \
-      + "       -h, --help        prints this help message\n" \
-      + "       -p, --plaintext   do not add escape sequences\n" \
-      + "       -w, --width <num> sets output width\n" \
-      + "       -s, --stdout      do not use tui interface\n" \
-      + "       -m, --meta        concat metadata at the end\n" \
-      + "       -x, --pdf         export to pdf\n" \
-      + "       -l, --latex       export to latex\n" \
-      + "       -d, --dark        uses darkmode in export\n"
+      + "       -h, --help            prints this help message\n" \
+      + "       -p, --plaintext       do not add escape sequences\n" \
+      + "       -w, --width <num>     sets output width\n" \
+      + "       -s, --stdout          do not use tui interface\n" \
+      + "       -m, --meta            concat metadata at the end\n" \
+      + "       -x, --pdf             export to pdf\n" \
+      + "       -l, --latex           export to latex (not pretty)\n" \
+      + "       -d, --dark            uses darkmode in export\n" \
+      + "       -f, --font <fontname> sets font\n"
 
 end
 
@@ -41,6 +42,10 @@ until ARGV.empty?
          abort "width must be positive numeric vlue" if Data.term_width < 1
 
          width_set = true
+
+      when "font"
+         abort "missing argument for --font" if ARGV.empty?
+         Data.font_name = ARGV.shift
 
       when "stdout"
          Data.output_mode = :stdout
@@ -78,6 +83,10 @@ until ARGV.empty?
 
             width_set = true
 
+         when 'f'
+            abort "missing argument for --font" if ARGV.empty?
+            Data.font_name = ARGV.shift
+
          when 's'
             Data.output_mode = :stdout
 
@@ -109,6 +118,8 @@ until ARGV.empty?
    end
 end
 
+# dir and stuff
+
 help if filename.empty?
 
 # detect if piped
@@ -135,6 +146,6 @@ else
    if Data.output_mode == :pdf
       system "xelatex /tmp/ptts/#{Data.export_name}.tex"
    else
-      #latex_export
+      File.copy "/tmp/ptts/#{Data.export_name}.tex", "./#{Data.export_name}.tex"
    end
 end

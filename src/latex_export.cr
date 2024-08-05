@@ -12,10 +12,10 @@ def prepare_tmp
    end
 
    if Data.default_font
-      `cp ../data/AnonymousPro-Regular.ttf /tmp/ptts/`
-      `cp ../data/AnonymousPro-Bold.ttf /tmp/ptts/`
-      `cp ../data/AnonymousPro-Italic.ttf /tmp/ptts/`
-      `cp ../data/AnonymousPro-BoldItalic.ttf /tmp/ptts/`
+      `cp ../data/#{Data.font_name}-Regular.ttf /tmp/ptts/`
+      `cp ../data/#{Data.font_name}-Bold.ttf /tmp/ptts/`
+      `cp ../data/#{Data.font_name}-Italic.ttf /tmp/ptts/`
+      `cp ../data/#{Data.font_name}-BoldItalic.ttf /tmp/ptts/`
       # File.open("/tmp/ptts/#{Data.font_name}", "wb") { |f|
       #    f.write FontData.data
       # }
@@ -27,14 +27,19 @@ def prepare_latex
 
    document = outcome2latex
 
+   page_width = 595.0 - Data.export_margin * 2
+   fontsize = page_width / Data.term_width * 1.5
+   fontsize = fontsize.floor
+   side_margin = (595 - fontsize / 1.5 * Data.term_width) / 2
+
    latex = %{
 \\documentclass{article}
 \\usepackage{xcolor}
 \\usepackage{fontspec}
-\\usepackage[a4paper, margin=#{Data.export_margin}em, bottom=#{
-   Data.export_margin >= 4 ? Data.export_margin : 4
-}em]{geometry}
-\\usepackage[skip=0pt]{parskip}
+\\usepackage[a4paper, left=#{side_margin}pt, right=#{side_margin}pt, top=#{Data.export_margin}pt, bottom=#{
+   Data.export_margin >= 40 ? Data.export_margin : 40
+}pt]{geometry}
+\\usepackage[skip=-1pt]{parskip}
 \\usepackage{footmisc}
 \\usepackage{ifthen}
 \\usepackage{fancyhdr}
@@ -71,7 +76,7 @@ def prepare_latex
 \\definecolor{bgdefault}{rgb}{#{Data.export_darkmode ? "0.1,0.1,0.2" : "1,1,1"}}
 
 % footnotes
-\\renewcommand{\\footnotesize}{\\normalsize}
+\\renewcommand{\\footnotesize}{\\fontsize{#{fontsize}}{#{fontsize}}}
 \\setlength{\\footnotemargin}{0em}
 
 % https://tex.stackexchange.com/questions/30720/footnote-without-a-marker
@@ -116,10 +121,9 @@ def prepare_latex
 \\begin{document}
 
 {
+\\fontsize{#{fontsize}}{#{fontsize}}\\selectfont
 \\pagecolor{bgdefault}
 \\color{fgdefault}
-% \\fontsize{11pt}{11pt}
-
 
 \\fboxsep0pt
 #{document}
@@ -139,15 +143,17 @@ def outcome2latex
 
    Outcome.pages.each_with_index { |page, i|
       page.lines.each { |line|
+         # text
+         txt += "#{txt2latex(line.align)}\n"
          # footnote
          unless line.footnotes.empty?
             line.footnotes.each { |fn|
                txt += "\\blfootnote{#{
-                  txt2latex fn.text.gsub(/\s*\n\s*/, " ").strip}}\n"
+                  txt2latex fn.text.gsub(/\s*\n\s*/, " ").strip, true}}\n\n"
             }
+         else
+            txt += "\n"
          end
-         # text
-         txt += "#{txt2latex(line.align)}\n\n"
       }
 
       if i < Outcome.pages.size - 1
@@ -165,8 +171,12 @@ def outcome2latex
    return txt + ""
 end
 
-def txt2latex(line : String)
-   line = line.gsub ' ', '\t'
+def txt2latex(line : String, nobreak = false)
+   unless nobreak
+      line = line.gsub ' ', '\t' 
+   else
+      line = line.sub ' ', '\t' 
+   end
    line = line.gsub '\\', "\\textbackslash "
    line = line.gsub '^', "\\textasciicircum "
    line = line.gsub '$', "\\$"

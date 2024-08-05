@@ -52,11 +52,11 @@ module Data
    @@export_name = ""
    @@default_font = true
    @@export_darkmode = false
-   @@export_margin = 1.0
+   @@export_margin = 12
    @@export_last_fg = "\\textcolor{fgdefault}{"
    @@export_last_bg = "\\colorbox{bgdefault}{"
 
-   @@font_name = "AnonymousPro"
+   @@font_name = "Hack"
    @@font_extension = ".ttf"
 end
 

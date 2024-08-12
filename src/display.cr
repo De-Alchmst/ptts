@@ -4,6 +4,24 @@ require "./meta_process.cr"
 
 require "term-reader"
 
+def handle_resizing
+   spawn {
+      x : Int32
+      y : Int32
+      loop {
+         sleep 0.25
+         x = `tput cols`.to_i
+         y = `tput lines`.to_i
+
+         if x != Data.term_width || y != Data.term_height
+            Data.term_width = x
+            Data.term_height = y
+            puts "ll"
+         end
+      }
+   }
+end
+
 def display()
    #############
    # GET TEXTS #
@@ -104,12 +122,14 @@ def display()
    draw_screen
    draw_bar
 
+   handle_resizing
+
    ################
    # INPUT HANDLE #
    ################
 
    loop {
-      char = reader.read_keypress.to_s.gsub '\e', ""
+      char = reader.read_keypress(nonblock: true).to_s.gsub '\e', ""
 
       # ctrl-c
       exit if char == "\u0018" 

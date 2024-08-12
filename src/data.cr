@@ -56,6 +56,7 @@ module Data
    @@export_last_bg = "\\colorbox{bgdefault}{"
 
    @@font_name = "Hack"
+   @@file_path = ""
 end
 
 enum Alingment

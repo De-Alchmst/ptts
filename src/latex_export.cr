@@ -35,6 +35,8 @@ def prepare_latex
 \\usepackage{footmisc}
 \\usepackage{ifthen}
 \\usepackage{fancyhdr}
+\\usepackage{hyperref}
+\\usepackage{graphicx}
 
 % Load the external font
 \\setmainfont{#{Data.font_name}}[
@@ -69,6 +71,13 @@ def prepare_latex
 \\definecolor{fgdefault}{rgb}{#{Data.export_darkmode ? "1,1,1" : "0,0,0"}}
 \\definecolor{bgdefault}{rgb}{#{Data.export_darkmode ? "0.1,0.1,0.2" : "1,1,1"}}
 
+% links
+\\hypersetup{
+  colorlinks=true,
+  urlcolor=bblue,
+  pdfborder={0 0 0}
+}
+
 % footnotes
 \\renewcommand{\\footnotesize}{\\fontsize{#{fontsize}pt}{#{fontsize}pt}}
 \\setlength{\\footnotemargin}{0em}
@@ -76,7 +85,7 @@ def prepare_latex
 % https://tex.stackexchange.com/questions/30720/footnote-without-a-marker
 \\newcommand\\blfootnote[1]{%
   \\begingroup
-  \\renewcommand\\thefootnote{}\\footnote{\\textcolor{fgdefault}{#1}}%
+  \\renewcommand\\thefootnote{}\\footnote{\\raggedright\\textcolor{fgdefault}{#1}}
   \\addtocounter{footnote}{-1}%
   \\endgroup
 }
@@ -142,8 +151,18 @@ def outcome2latex
          # footnote
          unless line.footnotes.empty?
             line.footnotes.each { |fn|
-               txt += "\\blfootnote{#{
-                  txt2latex fn.text.gsub(/\s*\n\s*/, " ").strip, true}}\n\n"
+               if fn.type == :footnote
+                  txt += "\\blfootnote{#{
+                     txt2latex fn.text.gsub(/\s*\n\s*/, " ").strip, true}}\n\n"
+               elsif fn.type == :link
+                  txt += "\\blfootnote{#{txt2latex fn.mark}\\href{#{fn.link}}{#{
+                     txt2latex fn.text.sub(fn.mark+" ", ""), true}}}\n\n"
+               elsif fn.type == :img
+                  path = fn.link
+                  txt += "\n\\includegraphics{#{
+                     path[0] == '/' ? path : "#{__DIR__}/#{path}"
+                  }}\n\n"
+               end
             }
          else
             txt += "\n"
@@ -197,7 +216,7 @@ struct FontData
 end
 
 def locate_font
-   font_dirs = ["./", "../data/", __DIR__ + "/ptts-fonts/", Data.file_path]
+   font_dirs = ["./", "../data/Hack/", __DIR__ + "/ptts-fonts/", Data.file_path]
 
    ["/usr/share/fonts/", "/usr/local/share/fonts/",
     "#{ENV["HOME"]}/.local/share/fonts/"].each { |dir|

@@ -8,7 +8,7 @@ def process_file(filename : String, contents="")
    Outcome.init
    Data.filename = filename
    Data.file_path = File.dirname filename
-   Data.export_name = filename.sub /\.[^\.]*$/, ""
+   Data.export_name = File.basename(filename).sub /\.[^\.]*$/, ""
 
    Data.indent_level = 0
    Data.indent_level_length = 1

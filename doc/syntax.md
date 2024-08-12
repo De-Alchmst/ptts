@@ -44,6 +44,8 @@ indented by extra 'num' spaces, negative num decreases indent
 - @pgeven - pagebreak at least once until even page number
 - @pgodd - pagebreak at least once until odd page number
 - @footnote{note} - inserts footnote mark and adds footnote atbottom of page
+- @link{url} - inserts hyperlink (footnote in terminal mode)
+- @img{url;alt} - inserts image (footnote in terminal mode)
 
 ### terminal/pdf only
 - @b - makes line bold

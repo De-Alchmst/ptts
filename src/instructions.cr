@@ -777,5 +777,34 @@ module Insts
             nil
          }
       ],
+
+      "link" => [
+         ->(arg : String) {},
+         ->(arg : String) {
+            Outcome.add_footnote arg, :link
+            nil
+         }
+      ],
+
+      "img" => [
+         ->(arg : String) {
+            parts = arg.split ";"
+            unless parts.size == 2
+               abort "needs two ';' separated arguments, but '#{arg}' given "
+            end
+
+            unless Data.output_mode == :pdf || Data.output_mode == :latex
+               Outcome.new_block
+               Outcome.append parts[1]
+            end
+
+            Outcome.add_footnote parts[0], :img
+
+            unless Data.output_mode == :pdf || Data.output_mode == :latex
+               Outcome.new_block
+            end
+         },
+         ->(arg : String) {}
+      ],
    }
 end

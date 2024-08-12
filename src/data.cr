@@ -68,12 +68,12 @@ enum Alingment
 end
 
 class Footnote
-   property text, height
-   def initialize(mark : String, txt : String)
+   property text, height, type, link, mark
+   def initialize(@mark : String, txt : String, @type = :footnote)
       # format footnote text
-      @text = mark
-      indent = mark.size + 1
-      width = mark.size
+      @text = @mark
+      indent = @mark.size + 1
+      width = @mark.size
       @height = 1
 
       words = txt.split " "
@@ -84,6 +84,7 @@ class Footnote
          if word.size > Data.term_width - indent
             words.unshift  word[Data.term_width - indent..]
             word = word[0..Data.term_width - indent - 1]
+            indent = 0 if @type != :footnote
          end
 
          # fits on line
@@ -96,9 +97,14 @@ class Footnote
                + "\n" + " " * (indent) + word
             @height += 1
             width = word.size + indent
+            indent = 0 if @type != :footnote
          end
       end
       @text += " " * (Data.term_width - width)
+   end
+
+   def link
+      @text.sub(@mark+" ", "").gsub('\n', "").strip
    end
 end
 

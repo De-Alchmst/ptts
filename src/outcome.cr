@@ -45,7 +45,7 @@ module Outcome
    end
 
    # footnotes #
-   def self.add_footnote(text : String)
+   def self.add_footnote(text : String, type = :footnote)
       mark = Data.footnote_symbols[pages.last.footnote_index] \
                         * (pages.last.footnote_repeat + 1)
 
@@ -53,7 +53,7 @@ module Outcome
 
       self.skip_space = true
       pages.last.append mark
-      pages.last.lines.last.footnotes << Footnote.new(mark, text)
+      pages.last.lines.last.footnotes << Footnote.new(mark, text, type)
 
       pages.last.footnote_index += 1
       if pages.last.footnote_index == Data.footnote_symbols.size

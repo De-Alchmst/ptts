@@ -4,10 +4,15 @@ require "./instructions.cr"
 require "./inst_parse.cr"
 
 def process_file(filename : String, contents="")
+   Outcome.alingment = Alingment::Left
    Outcome.init
    Data.filename = filename
    Data.file_path = File.dirname filename
    Data.export_name = filename.sub /\.[^\.]*$/, ""
+
+   Data.indent_level = 0
+   Data.indent_level_length = 1
+   Data.indent_extra = 0 # extralevel independent indent
 
    #################
    # READ THE FILE #
@@ -27,6 +32,7 @@ def process_file(filename : String, contents="")
    ##############
    # GO THROUGH #
    ##############
+   Data.file_line_count = 0
    lines.size.times { |i|
       line = lines[i] + " "
       Data.file_line_count = i + 1

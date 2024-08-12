@@ -37,7 +37,7 @@ class Line
          @leading_whitespace = @text[0..@indent - 1]
       end
 
-      @text = @text[@indent..]
+      @text = @text[@indent..] unless @text.empty?
 
       # if formatting #
       if !Data.plaintext

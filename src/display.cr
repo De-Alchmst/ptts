@@ -4,7 +4,7 @@ require "./meta_process.cr"
 
 require "term-reader"
 
-def handle_resizing
+def handle_resizing(normal_lines, meta_lines, prev_name)
    spawn {
       x : Int32
       y : Int32
@@ -16,18 +16,35 @@ def handle_resizing
          if x != Data.term_width || y != Data.term_height
             Data.term_width = x
             Data.term_height = y
-            puts "ll"
+
+            Data.footnotes.clear
+            process_file prev_name
+            Data.filename = prev_name
+
+            lines = get_lines
+            normal_lines.replace lines[0]
+            meta_lines.replace lines[1]
+
+            case Data.current_lines_mode
+            when :normal
+               Data.current_lines = normal_lines
+            when :meta
+               Data.current_lines = meta_lines
+            end
+
+            Data.filename = prev_name
+
+            Data.footnote_size = 0
+            draw_screen
+            draw_bar
+
+            print "\x1b[HPRESS ANY KEY TO REFRESH"
          end
       }
    }
 end
 
-def display()
-   #############
-   # GET TEXTS #
-   #############
-   prev_name = Data.filename
-
+def get_lines
    normal_lines = [] of String
 
    # get normal lines #
@@ -77,10 +94,23 @@ def display()
 
    if Data.concat_metadata
       normal_lines << (Data.plaintext ? "" : "\x1b[0m") \
-                      + "-" * ((Data.term_width - 4) / 2).floor.to_i \
-                      + "META" + "-" * ((Data.term_width - 4) / 2).ceil.to_i
+         + "-" * ((Data.term_width - 4) / 2).floor.to_i \
+         + "META" + "-" * ((Data.term_width - 4) / 2).ceil.to_i
       normal_lines += meta_lines
    end
+
+   return normal_lines, meta_lines
+end
+
+def display()
+   #############
+   # GET TEXTS #
+   #############
+   prev_name = Data.filename
+
+
+   lines = get_lines
+   normal_lines, meta_lines = lines
 
    Data.filename = prev_name
 
@@ -88,7 +118,7 @@ def display()
 
    meta_scroll = 0
    normal_scroll = 0
-   current_lines = :normal
+   Data.current_lines_mode = :normal
 
    #######################
    # IF OUTPUT TO STDOUT #
@@ -122,7 +152,7 @@ def display()
    draw_screen
    draw_bar
 
-   handle_resizing
+   handle_resizing normal_lines, meta_lines, prev_name
 
    ################
    # INPUT HANDLE #
@@ -208,11 +238,13 @@ def display()
             next
 
          when "n"
+            next if Data.search_list.size == 0
             Data.search_index += 1
             Data.search_index %= Data.search_list.size
             show_search
             next
          when "N"
+            next if Data.search_list.size == 0
             Data.search_index -= 1
             if Data.search_index < 0
                Data.search_index = Data.search_list.size-1
@@ -222,14 +254,14 @@ def display()
 
          # toggle meta
          when "m"
-            if current_lines == :normal
-               current_lines = :meta
+            if Data.current_lines_mode == :normal
+               Data.current_lines_mode = :meta
                normal_scroll = Data.scroll
                Data.scroll = meta_scroll
                Data.current_lines = meta_lines
                Data.filename = "meta"
             else
-               current_lines = :normal
+               Data.current_lines_mode = :normal
                meta_scroll = Data.scroll
                Data.scroll = normal_scroll
                Data.current_lines = normal_lines
@@ -309,7 +341,7 @@ end
 def add_footnote(ftnt : Footnote)
    Data.footnote_size = 1 if Data.footnote_size == 0
 
-   # save cursor position and got to beginning
+   # save cursor position and go to beginning
    print "\x1b[s"
 
    # move cursor

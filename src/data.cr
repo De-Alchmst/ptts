@@ -9,7 +9,7 @@ module Data
       concat_metadata, active_colors, export_name,
       export_darkmode, export_margin, export_last_fg, export_last_bg,
       r_font_name, b_font_name, i_font_name, bi_font_name, font_name,
-      file_path
+      file_path, current_lines_mode
    @@term_width : Int32 = 80 # `tput cols`.to_i (not when to pdf)
    @@term_height : Int32 = 24 #`tput lines`.to_i
    @@plaintext = false
@@ -57,6 +57,8 @@ module Data
 
    @@font_name = "Hack"
    @@file_path = ""
+
+   @@current_lines_mode = :normal
 end
 
 enum Alingment

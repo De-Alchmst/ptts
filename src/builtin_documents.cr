@@ -282,6 +282,13 @@ reached, first repeats doubled
 @x{ih} @startswithnothing
 @x{ib} will reser @startswith to nothing
 
+@vtab{1}
+Please note, that ptts does not have any more advanced macro system than 'x'
+on purpose.
+In the spirit of the UNIX philosophy, if you find yourself in the need of
+macros, apply some dedicated macro preprocessor like m4.
+(or roll your own, it's fun!)
+
 @x{h1} colors
 
 @vtab{1};cnt

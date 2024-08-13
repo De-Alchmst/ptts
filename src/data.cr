@@ -4,12 +4,13 @@ module Data
       indent_extra, output_mode, scroll, is_bold, is_italic, is_underlined,
       is_blink, search_list, search_index, vars, instructions, hardnl,
       number_lines, line_number, num_width, starts_with, meta, current_lines,
-      footnote_symbols, footnotes, footnote_size, wrap, wrap_now,
+      footnote_symbols, current_footnotes, footnote_size, wrap, wrap_now,
       last_alignment, prev_hardnl, strip, escape_regex, escape_regex_end,
       concat_metadata, active_colors, export_name,
       export_darkmode, export_margin, export_last_fg, export_last_bg,
       r_font_name, b_font_name, i_font_name, bi_font_name, font_name,
-      file_path, current_lines_mode, manual_mode
+      file_path, current_lines_mode, manual_mode, meta_footnotes,
+      manual_footnotes, normal_footnotes
    @@term_width : Int32 = 80 # `tput cols`.to_i (not when to pdf)
    @@term_height : Int32 = 24 #`tput lines`.to_i
    @@plaintext = false
@@ -40,7 +41,10 @@ module Data
    @@current_lines = [] of String
    @@footnote_symbols = ["*"]
    @@footnote_size = 0
-   @@footnotes = {} of Int32 => Array(Footnote)
+   @@current_footnotes = {} of Int32 => Array(Footnote)
+   @@normal_footnotes = {} of Int32 => Array(Footnote)
+   @@meta_footnotes = {} of Int32 => Array(Footnote)
+   @@manual_footnotes = {} of Int32 => Array(Footnote)
    @@wrap = false
    @@wrap_now = false
    @@last_alignment = Alingment::Left

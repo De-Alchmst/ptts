@@ -7,7 +7,8 @@ require "term-reader"
 ########################################
 # HANDLE RESIZING IN A SEPERATE THREAD #
 ########################################
-def handle_resizing(normal_lines, meta_lines, prev_name)
+# gives as pointers
+def handle_resizing(normal_lines, meta_lines, manual_lines, prev_name)
    spawn {
       x : Int32
       y : Int32
@@ -20,7 +21,7 @@ def handle_resizing(normal_lines, meta_lines, prev_name)
             Data.term_width = x
             Data.term_height = y
 
-            Data.footnotes.clear
+            Data.normal_footnotes.clear
             unless Data.manual_mode
                process_file prev_name
             else
@@ -31,12 +32,18 @@ def handle_resizing(normal_lines, meta_lines, prev_name)
             lines = get_lines
             normal_lines.replace lines[0]
             meta_lines.replace lines[1]
+            manual_lines.replace lines[2]
 
             case Data.current_lines_mode
             when :normal
                Data.current_lines = normal_lines
+               Data.current_footnotes = Data.normal_footnotes
             when :meta
                Data.current_lines = meta_lines
+               Data.current_footnotes = Data.meta_footnotes
+            when :manual
+               Data.current_lines = manual_lines
+               Data.current_footnotes = Data.manual_footnotes
             end
 
             Data.filename = prev_name
@@ -64,7 +71,7 @@ def get_lines
 
          # footnotes #
          unless line.footnotes.empty?
-            Data.footnotes[normal_lines.size - 1] = line.footnotes
+            Data.normal_footnotes[normal_lines.size - 1] = line.footnotes
          end
       }
 
@@ -82,12 +89,12 @@ def get_lines
 
          ### IF STDOUT ###
          if Data.output_mode == :stdout
-            Data.footnotes.values.each {|ftnts|
+            Data.normal_footnotes.values.each {|ftnts|
                ftnts.each {|ftnt|
                   normal_lines << ftnt.text
                }
             }
-            Data.footnotes = {} of Int32 => Array(Footnote)
+            Data.normal_footnotes = {} of Int32 => Array(Footnote)
          end
          #################
 
@@ -98,8 +105,14 @@ def get_lines
    }
 
    meta_lines = [] of String
+   Data.meta_footnotes.clear
    get_meta.each { |line|
       meta_lines << line.align
+
+      # footnotes #
+      unless line.footnotes.empty?
+         Data.meta_footnotes[meta_lines.size - 1] = line.footnotes
+      end
    }
 
    if Data.concat_metadata
@@ -109,7 +122,18 @@ def get_lines
       normal_lines += meta_lines
    end
 
-   return normal_lines, meta_lines
+   manual_lines = [] of String
+   Data.manual_footnotes.clear
+   get_manual.each { |line|
+      manual_lines << line.align
+
+      # footnotes #
+      unless line.footnotes.empty?
+         Data.manual_footnotes[manual_lines.size - 1] = line.footnotes
+      end
+   }
+
+   return normal_lines, meta_lines, manual_lines
 end
 
 def display()
@@ -120,14 +144,16 @@ def display()
 
 
    lines = get_lines
-   normal_lines, meta_lines = lines
+   normal_lines, meta_lines, manual_lines = lines
 
    Data.filename = prev_name
 
    Data.current_lines = normal_lines
+   Data.current_footnotes = Data.normal_footnotes
 
    meta_scroll = 0
    normal_scroll = 0
+   manual_scroll = 0
    Data.current_lines_mode = :normal
 
    #######################
@@ -140,7 +166,7 @@ def display()
       }
 
       puts "-" * Data.term_width
-      Data.footnotes.values.each {|ftnts|
+      Data.normal_footnotes.values.each {|ftnts|
          ftnts.each {|ftnt|
             puts ftnt.text
          }
@@ -162,7 +188,7 @@ def display()
    draw_screen
    draw_bar
 
-   handle_resizing normal_lines, meta_lines, prev_name
+   handle_resizing normal_lines, meta_lines, manual_lines, prev_name
 
    ################
    # INPUT HANDLE #
@@ -266,22 +292,58 @@ def display()
 
          # toggle meta
          when "m"
-            if Data.current_lines_mode == :normal
+            unless Data.current_lines_mode == :meta 
+               if Data.current_lines_mode == :normal
+                  normal_scroll = Data.scroll
+               else
+                  manual_scroll = Data.scroll
+               end
                Data.current_lines_mode = :meta
-               normal_scroll = Data.scroll
                Data.scroll = meta_scroll
                Data.current_lines = meta_lines
                Data.filename = "meta"
+               Data.current_footnotes = Data.meta_footnotes
             else
                Data.current_lines_mode = :normal
                meta_scroll = Data.scroll
                Data.scroll = normal_scroll
                Data.current_lines = normal_lines
                Data.filename = prev_name
+               Data.current_footnotes = Data.normal_footnotes
             end
+
+         # toggle manual
+         # F1 registeres as "\eO" "P"
+         when "h", "?", "P"
+            if char == "P"
+               next unless prev_key == "O"
+            end
+
+            unless Data.current_lines_mode == :manual 
+               if Data.current_lines_mode == :normal
+                  normal_scroll = Data.scroll
+               else
+                  meta_scroll = Data.scroll
+               end
+               Data.current_lines_mode = :manual
+               Data.scroll = manual_scroll
+               Data.current_lines = manual_lines
+               Data.filename = "manual"
+               Data.current_footnotes = Data.manual_footnotes
+            else
+               Data.current_lines_mode = :normal
+               manual_scroll = Data.scroll
+               Data.scroll = normal_scroll
+               Data.current_lines = normal_lines
+               Data.filename = prev_name
+               Data.current_footnotes = Data.normal_footnotes
+            end
+
+         when "O"
+            prev_key = "O"
       end
 
-      prev_key = "" unless char = "g"
+      prev_key = "" unless char = "g" || char == "O"
 
       Data.footnote_size = 0
 
@@ -318,8 +380,8 @@ def draw_screen
       puts Data.current_lines[Data.scroll + i]
 
       # footnotes
-      if Data.footnotes.keys.includes? i+Data.scroll
-         Data.footnotes[i+Data.scroll].each {|ftnt|
+      if Data.current_footnotes.keys.includes? i+Data.scroll
+         Data.current_footnotes[i+Data.scroll].each {|ftnt|
             add_footnote ftnt
          }
       end
@@ -382,7 +444,7 @@ def search(prompt)
 
    prom = Regex.new(prompt.gsub /\n/, "")
 
-   # avoid problems with empty regex and escape characters
+   #system
    return 0 if prom.source.empty?
 
    num = 0

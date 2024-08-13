@@ -1,9 +1,12 @@
 require "./data.cr"
 require "./outcome.cr"
-require "./meta_process.cr"
+require "./builtin_documents.cr"
 
 require "term-reader"
 
+########################################
+# HANDLE RESIZING IN A SEPERATE THREAD #
+########################################
 def handle_resizing(normal_lines, meta_lines, prev_name)
    spawn {
       x : Int32
@@ -18,7 +21,11 @@ def handle_resizing(normal_lines, meta_lines, prev_name)
             Data.term_height = y
 
             Data.footnotes.clear
-            process_file prev_name
+            unless Data.manual_mode
+               process_file prev_name
+            else
+               get_manual
+            end
             Data.filename = prev_name
 
             lines = get_lines
@@ -44,6 +51,9 @@ def handle_resizing(normal_lines, meta_lines, prev_name)
    }
 end
 
+##############################
+# GET LINES OF ALL DOCUMENTS #
+##############################
 def get_lines
    normal_lines = [] of String
 
@@ -211,8 +221,10 @@ def display()
          # search
          when "/", "\u0006"
             # get user input
+            print "\x1b[#{Data.term_height};0H\x1b[0;7m" + " " * Data.term_width
             prompt = reader.read_line(
-               prompt: "\x1b[#{Data.term_height};0H\x1b[0;7m regex search: ")
+               prompt:"\x1b[#{Data.term_height};0H regex search: ")
+
             num = search prompt
 
             draw_screen
@@ -369,6 +381,10 @@ def search(prompt)
    Data.search_list = [] of SearchItem
 
    prom = Regex.new(prompt.gsub /\n/, "")
+
+   # avoid problems with empty regex and escape characters
+   return 0 if prom.source.empty?
+
    num = 0
    # go through lines #
    (0..Data.current_lines.size-1).each { |i|

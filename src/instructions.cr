@@ -650,14 +650,14 @@ module Insts
 
       "set" => [
          ->(arg : String) {
-            val = arg.split ";"
+            val = arg.partition ";"
 
-            if val.size != 2
+            if val.size != 3
                abort "needs two ';' separated arguments, but '#{arg}' given " \
                    + "in file: #{Data.filename} at line #{Data.file_line_count}"
             end
 
-            Data.vars[val[0]] = val[1]
+            Data.vars[val[0]] = val[2]
             nil
          },
          ->(arg : String) {}
@@ -673,6 +673,19 @@ module Insts
             Outcome.append Data.vars[arg]
          },
          ->(arg : String) {}
+      ],
+
+      "aval" => [
+         ->(arg : String) {
+         },
+         ->(arg : String) {
+            unless Data.vars.has_key? arg
+               abort "unset variable #{arg} " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
+            end
+
+            Outcome.append Data.vars[arg]
+         }
       ],
 
       "x" => [
@@ -698,7 +711,7 @@ module Insts
             end
 
             num = arg.to_i
-            num += 1 unless Outcome.pages.last.lines.last.empty
+            # num += 1 unless Outcome.pages.last.lines.last.empty
 
             Outcome.new_block
 

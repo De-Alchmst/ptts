@@ -1,13 +1,13 @@
-Text blocks are seperated by double newline, additional newlines are displayed
-as is. '@' at the beginning of line indicates formatting instruction. Anything
-after that instruction is interpreted as normal text. Instructions can affect
-only text on same line, entire text block, or entire document from itself
-afterwards. Instructions can have arguments inside '{}' and multiple
-instructions can be seperated by ';'
+Document is organised in text blocks (paragraphs).
+Text blocks are seperated by double newline or some specific instructions.
+Instructions are called by starting a line with '@' and are optionally
+terminated by a whitespace followed by text.
+Some instructions operate on this line of text
+Multiple instructions can be called from one line by seperating them with ';'.
+Some instructions take arguments in curly brackets.
 
-ptts can operate in two modes: 'plaintext' and 'terminal'
-
-ptts implements pages. how are they implemented depends on implementation
+ptts can operate in three modes: 'plaintext', 'terminal' and 'pdf'.
+In 'plaintext' mode, any text formatting relying on escape sequences is ignored.
 
 # Instructions
 
@@ -43,14 +43,14 @@ indented by extra 'num' spaces, negative num decreases indent
 - @pgbr - pagebreak
 - @pgeven - pagebreak at least once until even page number
 - @pgodd - pagebreak at least once until odd page number
-- @footnote{note} - inserts footnote mark and adds footnote atbottom of page
+- @footnote{note} - inserts footnote mark and adds footnote at the bottom of the page
 - @link{url} - inserts hyperlink (footnote in terminal mode)
-- @img{url;alt} - inserts image (footnote in terminal mode)
+- @img{url;alt} - inserts image (alt with a footnote in terminal mode)
 
 ### terminal/pdf only
 - @b - makes line bold
 - @bb - begins bold area
-- @eb ends bold area
+- @eb - ends bold area
 - @i - makes line italic
 - @bi - begins italic area
 - @ei - ends italic area
@@ -59,23 +59,24 @@ indented by extra 'num' spaces, negative num decreases indent
 - @eu - ends underlined area
 - @blnk - makes line blinking
 - @bblink - begins blinking block
-- @eblink - end blinking block
+- @eblink - ends blinking block
 
-- @cl{color-word} - makes line in given color, color is given as word
-- @bcl{color-word} - begins color area, color is given as word
+- @cl{color-word} - makes line in given color, color is given as a word
+- @bcl{color-word} - begins color area, color is given as a word
 - @rgb{r;g;b} - makes line in given color, color is given as ';' separated rgb values
 - @brgb{r;g;b} - begins color area, color is given as ';' separated rgb values
-- @hex{hex} - makes line in given color, color is given as hex code with optional '#'
-- @bhex{hex} - begins color area, color is given as hex code with optional '#' 
+- @hex{hex} - makes line in given color, color is given as a hex code with optional '#'
+- @bhex{hex} - begins color area, color is given as a hex code with optional '#' 
 
 ## formatting control
-- @fg - makes following color-changing instructions affect foreground
 - @bg - makes following color-changing instructions affect background
+- @fg - makes following color-changing instructions affect foreground
 - @setindl{num} - sets indentation level to given number of spaces
 
-- @set{name;val} - sets value of variable to come value separated by first ';'
+- @set{name;val} - sets value of a variable
 - @x{name} - evaluetes certain variable contents as instructions
 - @val{name} - inserts value of certain variable as text
+- @aval{name} - inserts value of certain variable as text after the line
 
 - @hardnl - stops joining lines like normal and seperates blocks by single newline
 - @softnl - returns to joining lines like normal
@@ -89,12 +90,11 @@ indented by extra 'num' spaces, negative num decreases indent
 - @wrap - numbers blocks instead of lines
 - @nowrap - returns to numbering each line normally
 
-- @setfootnote{marks} - sets ';' separated list of footnote marks, once last on
-reached, first repeats doubled
+- @setfootnote{marks} - sets ';' separated list of footnote marks, once last one reached, first repeats doubled
 
 - @meta{key:value-list} - adds metadata as key-value pair list separated by ';', key and value are seperated by ':'
 
-- @cmnt - ignores this line from now onward
+- @cmnt - ignores this line from now onward including any left instructions
 
 - @sourcetxt{path} - inserts contents of file at 'path' to this place, set configs are ignored
 - @sourcecnfg{path} - sources formatting, variables and meta from file at 'path'

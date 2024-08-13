@@ -132,6 +132,8 @@ class Page
    def append(text : String, strip=true)
       if strip && Data.strip
          text = text.strip
+      else
+         text = text[(..text.size-2)]
       end
 
       # empty lines

@@ -8,18 +8,7 @@ require "./latex_export.cr"
 #####################
 
 def help
-  abort "usage: ptts [flags <flag args>] <filename>\n" \
-      + "flags: \n" \
-      + "       -h, --help            prints this help message\n" \
-      + "       -p, --plaintext       do not add escape sequences\n" \
-      + "       -w, --width <num>     sets output width\n" \
-      + "       -s, --stdout          do not use tui interface\n" \
-      + "       -m, --meta            concat metadata at the end\n" \
-      + "       -x, --pdf             export to pdf\n" \
-      + "       -l, --latex           export to latex (not pretty)\n" \
-      + "       -d, --dark            uses darkmode in export\n" \
-      + "       -f, --font <fontname> sets font\n"
-
+   abort get_help
 end
 
 filename = ""
@@ -62,6 +51,9 @@ until ARGV.empty?
       when "dark"
          Data.export_darkmode = true
 
+      when "manual"
+         Data.manual_mode = true
+
       else
          puts "unknown flag: #{arg}"
          help
@@ -102,6 +94,9 @@ until ARGV.empty?
          when 'd'
             Data.export_darkmode = true
 
+         when 'H'
+            Data.manual_mode = true
+
          else
             puts "unknown flag: -#{flag}"
             help
@@ -120,7 +115,7 @@ end
 
 # dir and stuff
 
-help if filename.empty?
+help if filename.empty? && !Data.manual_mode
 
 # detect if piped
 unless STDOUT.tty?
@@ -136,7 +131,11 @@ end
 #########################
 # PROCESS FILE CONTENTS #
 #########################
-process_file filename
+unless Data.manual_mode
+   process_file filename
+else
+   get_manual
+end
 
 if Data.output_mode == :tui || Data.output_mode == :stdout
    display

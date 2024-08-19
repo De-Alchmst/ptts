@@ -105,10 +105,10 @@ until ARGV.empty?
          when 'M'
             Data.meta_end = true
 
-         when "i"
+         when 'i'
             Data.index_front = true
 
-         when "I"
+         when 'I'
             Data.index_end = true
 
          when 'd'

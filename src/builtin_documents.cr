@@ -80,7 +80,9 @@ G, End   : go to the ond of the document
 /, C-f   : perform a regex search
 n        : go to the next match
 N        : go to the previous match
-M        : toggle metadata
+m        : toggle metadata
+i        : toggle label index
+Return   : go to the first label if in index mode
 @softnl
 
 @x{h1} usage

@@ -8,7 +8,8 @@ require "term-reader"
 # HANDLE RESIZING IN A SEPERATE THREAD #
 ########################################
 # gives as pointers
-def handle_resizing(normal_lines, meta_lines, manual_lines, prev_name)
+def handle_resizing(normal_lines, meta_lines, manual_lines, index_lines, \
+                    prev_name)
    spawn {
       x : Int32
       y : Int32
@@ -44,6 +45,9 @@ def handle_resizing(normal_lines, meta_lines, manual_lines, prev_name)
             when :manual
                Data.current_lines = manual_lines
                Data.current_footnotes = Data.manual_footnotes
+            when :index
+               Data.current_lines = index_lines
+               Data.current_footnotes = {} of Int32 => Array(Footnote)
             end
 
             Data.filename = prev_name
@@ -110,6 +114,7 @@ def get_lines
       end
    }
 
+   # META #
    meta_lines = [] of String
    Data.meta_footnotes.clear
    get_meta.each { |line|
@@ -121,21 +126,34 @@ def get_lines
       end
    }
 
-   if Data.meta_end
+   # INDEX #
+   index_lines = [] of String
+   Data.labels.each { |k, v|
+      new = "#{v + 1} : #{k}"
+      # one label only on one line
+      if new.size > Data.term_width - 2
+         new = new[0, Data.term_width - 5] + "..."
+      end
+
+      index_lines << new
+   }
+
+   # INDEX FLAG #
+   if Data.index_end
       normal_lines << (Data.plaintext ? "" : "\x1b[0m") \
-         + "-" * ((Data.term_width - 4) / 2).floor.to_i \
-         + "META" + "-" * ((Data.term_width - 4) / 2).ceil.to_i
-      normal_lines += meta_lines
+         + "-" * ((Data.term_width - 5) / 2).floor.to_i \
+         + "INDEX" + "-" * ((Data.term_width - 5) / 2).ceil.to_i
+      normal_lines += index_lines
    end
 
-   if Data.meta_front
+   if Data.index_front
       ln = [] of String
 
       ln << (Data.plaintext ? "" : "\x1b[0m") \
-         + "-" * ((Data.term_width - 4) / 2).floor.to_i \
-         + "META" + "-" * ((Data.term_width - 4) / 2).ceil.to_i
+         + "-" * ((Data.term_width - 5) / 2).floor.to_i \
+         + "INDEX" + "-" * ((Data.term_width - 5) / 2).ceil.to_i
 
-      ln += meta_lines
+      ln += index_lines
 
       ln << (Data.plaintext ? "" : "\x1b[0m") \
          + "-" * ((Data.term_width - 8) / 2).floor.to_i \
@@ -158,6 +176,47 @@ def get_lines
       normal_lines = ln + normal_lines
    end
 
+   # META FLAG #
+   if Data.meta_end
+      normal_lines << (Data.plaintext ? "" : "\x1b[0m") \
+         + "-" * ((Data.term_width - 4) / 2).floor.to_i \
+         + "META" + "-" * ((Data.term_width - 4) / 2).ceil.to_i
+      normal_lines += meta_lines
+   end
+
+   if Data.meta_front
+      ln = [] of String
+
+      ln << (Data.plaintext ? "" : "\x1b[0m") \
+         + "-" * ((Data.term_width - 4) / 2).floor.to_i \
+         + "META" + "-" * ((Data.term_width - 4) / 2).ceil.to_i
+
+      ln += meta_lines
+
+      unless Data.index_front
+         ln << (Data.plaintext ? "" : "\x1b[0m") \
+            + "-" * ((Data.term_width - 8) / 2).floor.to_i \
+            + "CONTENTS" + "-" * ((Data.term_width - 8) / 2).ceil.to_i
+      end
+
+      shift_len = ln.size
+      # fix footnotes
+      nf = {} of Int32 => Array(Footnote)
+
+      Data.normal_footnotes.each { |k, v|
+         nf[k + shift_len] = v
+      }
+      Data.normal_footnotes = nf
+
+      # fix labels
+      Data.labels.each { |k, v|
+         Data.labels[k] = v + shift_len
+      }
+
+      normal_lines = ln + normal_lines
+   end
+
+   # MANUAL #
    manual_lines = [] of String
    Data.manual_footnotes.clear
    get_manual.each { |line|
@@ -169,7 +228,7 @@ def get_lines
       end
    }
 
-   return normal_lines, meta_lines, manual_lines
+   return normal_lines, meta_lines, manual_lines, index_lines
 end
 
 def display()
@@ -180,7 +239,7 @@ def display()
 
 
    lines = get_lines
-   normal_lines, meta_lines, manual_lines = lines
+   normal_lines, meta_lines, manual_lines, index_lines = lines
 
    Data.filename = prev_name
 
@@ -190,6 +249,7 @@ def display()
    meta_scroll = 0
    normal_scroll = 0
    manual_scroll = 0
+   index_scroll = 0
    Data.current_lines_mode = :normal
 
    #######################
@@ -224,7 +284,8 @@ def display()
    draw_screen
    draw_bar
 
-   handle_resizing normal_lines, meta_lines, manual_lines, prev_name
+   handle_resizing normal_lines, meta_lines, manual_lines, index_lines, \
+                   prev_name
 
    ################
    # INPUT HANDLE #
@@ -278,6 +339,9 @@ def display()
                Data.scroll = new if new > 0
 
                draw_screen
+               # if top line is a footnote that keeps getting in and
+               # out of the view
+               break if prev_footnote_size <= Data.footnote_size
             end
 
          # search
@@ -331,6 +395,8 @@ def display()
             unless Data.current_lines_mode == :meta 
                if Data.current_lines_mode == :normal
                   normal_scroll = Data.scroll
+               elsif Data.current_lines_mode == :index
+                  index_scroll = Data.scroll
                else
                   manual_scroll = Data.scroll
                end
@@ -358,6 +424,8 @@ def display()
             unless Data.current_lines_mode == :manual 
                if Data.current_lines_mode == :normal
                   normal_scroll = Data.scroll
+               elsif Data.current_lines_mode == :index
+                  index_scroll = Data.scroll
                else
                   meta_scroll = Data.scroll
                end
@@ -377,6 +445,41 @@ def display()
 
          when "O"
             prev_key = "O"
+
+         # toggle index
+         when "i"
+            unless Data.current_lines_mode == :index 
+               if Data.current_lines_mode == :normal
+                  normal_scroll = Data.scroll
+               elsif Data.current_lines_mode == :meta
+                  meta_scroll = Data.scroll
+               else
+                  manual_scroll = Data.scroll
+               end
+               Data.current_lines_mode = :index
+               Data.scroll = index_scroll
+               Data.current_lines = index_lines
+               Data.filename = "index"
+               Data.current_footnotes = {} of Int32 => Array(Footnote)
+            else
+               Data.current_lines_mode = :normal
+               index_scroll = Data.scroll
+               Data.scroll = normal_scroll
+               Data.current_lines = normal_lines
+               Data.filename = prev_name
+               Data.current_footnotes = Data.normal_footnotes
+            end
+
+         when "\r"
+            if Data.current_lines_mode == :index \
+            && Data.scroll < Data.labels.size
+               Data.current_lines_mode = :normal
+               index_scroll = Data.scroll
+               Data.scroll = Data.labels.values[Data.scroll]
+               Data.current_lines = normal_lines
+               Data.filename = prev_name
+               Data.current_footnotes = Data.normal_footnotes
+            end
       end
 
       prev_key = "" unless char = "g" || char == "O"
@@ -413,6 +516,9 @@ def draw_screen
       # if no more lines
       break if Data.scroll+i >= Data.current_lines.size
 
+      if i == 0 && Data.current_lines_mode == :index
+         print "> "
+      end
       puts Data.current_lines[Data.scroll + i]
 
       # footnotes

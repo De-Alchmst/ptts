@@ -46,6 +46,8 @@ indented by extra 'num' spaces, negative num decreases indent
 - @footnote{note} - inserts footnote mark and adds footnote at the bottom of the page
 - @link{url} - inserts hyperlink (footnote in terminal mode)
 - @img{url;alt} - inserts image (alt with a footnote in terminal mode)
+- @label{name} - marks this line as a label of given name
+- reflabel{name} - refers to label by given name
 
 ### terminal/pdf only
 - @b - makes line bold

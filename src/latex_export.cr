@@ -17,7 +17,7 @@ def prepare_latex
    dat = locate_font
    prepare_tmp
 
-   document = outcome2latex
+   document, index = outcome2latex
 
    page_width = 595.0 - Data.export_margin * 2
    fontsize = page_width / Data.term_width * 1.5
@@ -133,7 +133,13 @@ def prepare_latex
 \\color{fgdefault}
 
 \\fboxsep0pt
+#{index if Data.index_front}
+#{"\\newpage" if Data.index_front}
+
 #{document}
+
+#{"\\newpage" if Data.index_end}
+#{index if Data.index_end}
 }
 
 \\end{document}}
@@ -147,13 +153,20 @@ end
 
 def outcome2latex
    txt = ""
+   ind = ""
 
    Outcome.pages.each_with_index { |page, i|
       page.lines.each { |line|
          # label
          unless line.labels.empty?
             line.labels.each { |label|
-               txt += "\\refstepcounter{lc}\\label{#{label}}"
+               l = txt2latex label
+               txt += "\\refstepcounter{lc}\\label{#{l}}"
+               lb = l
+               if lb.size > Data.term_width - 4
+                  lb = lb[0..Data.term_width - 7] + "..."
+               end
+               ind += "\\pageref{#{l}} \\hyperref[#{l}]{#{lb}}\n\n"
             }
          end
 
@@ -167,16 +180,18 @@ def outcome2latex
                   txt += "\\blfootnote{#{
                      txt2latex fn.text.gsub(/\s*\n\s*/, " ").strip, true}}\n\n"
                elsif fn.type == :link
-                  txt += "\\blfootnote{#{txt2latex fn.mark}~\\href{#{fn.link}}{#{
-                     txt2latex fn.text.sub(fn.mark+" ", ""), true}}}\n\n"
+                  txt += "\\blfootnote{#{txt2latex fn.mark}~\\href{#{
+                      txt2latex fn.link}}{#{
+                      txt2latex fn.text.sub(fn.mark+" ", ""), true}}}\n\n"
                elsif fn.type == :img
                   path = fn.link
                   txt += "\n\\includegraphics{#{
                      path[0] == '/' ? path : "#{__DIR__}/#{path}"
                   }}\n\n"
                elsif fn.type == :label
-                  txt += "\\blfootnote{#{txt2latex fn.mark}~\\hyperref[#{fn.label}]{#{
-                     txt2latex fn.text.sub(fn.mark+" ", ""), true}}}\n\n"
+                  txt += "\\blfootnote{#{txt2latex fn.mark}~\\hyperref[#{
+                      txt2latex fn.label}]{#{
+                      txt2latex fn.text.sub(fn.mark+" ", ""), true}}}\n\n"
                end
             }
          else
@@ -196,7 +211,13 @@ def outcome2latex
       end
    }
 
-   return txt + ""
+   unless ind.empty?
+      ind = txt2latex("-" * ((Data.term_width - 5) / 2).floor.to_i \
+          + "INDEX" + "-" * ((Data.term_width - 5) / 2).ceil.to_i) \
+          + "\n\n" + ind
+   end
+
+   return txt + "", ind
 end
 
 def txt2latex(line : String, nobreak = false)

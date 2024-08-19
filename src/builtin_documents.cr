@@ -82,7 +82,7 @@ n        : go to the next match
 N        : go to the previous match
 m        : toggle metadata
 i        : toggle label index
-Return   : go to the first label if in index mode
+Return   : go to the selected label if in index mode
 @softnl
 
 @x{h1} usage

@@ -819,5 +819,21 @@ module Insts
          },
          ->(arg : String) {}
       ],
+
+      "label" => [
+         ->(arg : String) {},
+         ->(arg : String) {
+            Outcome.add_label arg
+            nil
+         }
+      ],
+
+      "reflabel" => [
+         ->(arg : String) {},
+         ->(arg : String) {
+            Outcome.add_footnote arg, :label
+            nil
+         }
+      ],
    }
 end

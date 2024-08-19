@@ -168,6 +168,10 @@ indented by extra 'num' spaces, negative num decreases indent
 @x{ib} inserts hyperlink (footnote in terminal mode)
 @x{ih} @img{url;alt}
 @x{ib} inserts image (alt with a footnote in terminal mode)
+@x{ih} @label{name}
+@x{ib} marks this line as a label of given name
+@x{ih} reflabel{name}
+@x{ib} refers to label by given name
 
 @x{h2} terminal/pdf only
 

@@ -3,6 +3,8 @@ require "./display.cr"
 require "./file_handle.cr"
 require "./latex_export.cr"
 
+require "file_utils"
+
 #####################
 # PROCESS ARGUMENTS #
 #####################
@@ -143,7 +145,13 @@ else
    prepare_latex
 
    if Data.output_mode == :pdf
+      cur_dir = Dir.current
+      Dir.cd "/tmp/ptts"
+      # needs to run twice, because of labels
       system "xelatex /tmp/ptts/#{Data.export_name}.tex"
+      system "xelatex /tmp/ptts/#{Data.export_name}.tex"
+      Dir.cd cur_dir
+      FileUtils.mv "/tmp/ptts/#{Data.export_name}.pdf", "./#{Data.export_name}.pdf"
    else
       File.copy "/tmp/ptts/#{Data.export_name}.tex", "./#{Data.export_name}.tex"
    end

@@ -62,6 +62,10 @@ module Outcome
       end
    end
 
+   def self.add_label(text : String)
+      pages.last.lines.last.labels << text
+   end
+
    def self.reset_footnote_count
       pages.last.footnote_repeat = 0
       pages.last.footnote_index = 0

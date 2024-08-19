@@ -22,8 +22,10 @@ end
 
 class Line
    property text, alingment, empty, footnotes, has_num, indent, strip,
-      starts_with, escapes_start, escapes_middle, leading_whitespace, number
+      starts_with, escapes_start, escapes_middle, leading_whitespace, number,
+      labels
    @footnotes = [] of Footnote
+   @labels = [] of String
    @has_num = false
    @strip : Bool
    @starts_with : String

@@ -121,6 +121,11 @@ def prepare_latex
   }
 }
 
+% labels
+% https://stackoverflow.com/questions/3831705/how-can-i-attach-a-latex-marker-to-an-arbitrary-place-in-text
+\\newcounter{lc}
+\\newcommand\\refitem{\\refstepcounter{lc}\\thelc}
+
 \\begin{document}
 
 {
@@ -146,8 +151,16 @@ def outcome2latex
 
    Outcome.pages.each_with_index { |page, i|
       page.lines.each { |line|
+         # label
+         unless line.labels.empty?
+            line.labels.each { |label|
+               txt += "\\refitem\\label{#{label}}"
+            }
+         end
+
          # text
          txt += "#{txt2latex(line.align)}\n"
+
          # footnote
          unless line.footnotes.empty?
             line.footnotes.each { |fn|
@@ -162,6 +175,9 @@ def outcome2latex
                   txt += "\n\\includegraphics{#{
                      path[0] == '/' ? path : "#{__DIR__}/#{path}"
                   }}\n\n"
+               elsif fn.type == :label
+                  txt += "\\blfootnote{#{txt2latex fn.mark}~\\hyperref[#{fn.label}]{#{
+                     txt2latex fn.text.sub(fn.mark+" ", ""), true}}}\n\n"
                end
             }
          else
@@ -216,7 +232,7 @@ struct FontData
 end
 
 def locate_font
-   font_dirs = ["./", "../data/Hack/", __DIR__ + "/ptts-fonts/", Data.file_path]
+   font_dirs = [__DIR__, "#{__DIR__}/../data/Hack/", __DIR__ + "/ptts-fonts/", Data.file_path]
 
    ["/usr/share/fonts/", "/usr/local/share/fonts/",
     "#{ENV["HOME"]}/.local/share/fonts/"].each { |dir|

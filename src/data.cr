@@ -10,7 +10,7 @@ module Data
       export_darkmode, export_margin, export_last_fg, export_last_bg,
       r_font_name, b_font_name, i_font_name, bi_font_name, font_name,
       file_path, current_lines_mode, manual_mode, meta_footnotes,
-      manual_footnotes, normal_footnotes
+      manual_footnotes, normal_footnotes, labels
    @@term_width : Int32 = 80 # `tput cols`.to_i (not when to pdf)
    @@term_height : Int32 = 24 #`tput lines`.to_i
    @@plaintext = false
@@ -58,12 +58,11 @@ module Data
    @@export_margin = 12
    @@export_last_fg = "\\textcolor{fgdefault}{"
    @@export_last_bg = "\\colorbox{bgdefault}{"
-
    @@font_name = "Hack"
    @@file_path = ""
-
    @@current_lines_mode = :normal
    @@manual_mode = false
+   @@labels = {} of String => Int32
 end
 
 enum Alingment
@@ -80,6 +79,8 @@ class Footnote
       indent = @mark.size + 1
       width = @mark.size
       @height = 1
+
+      txt = "label : " + txt if @type == :label
 
       words = txt.split " "
       until words.empty?
@@ -110,6 +111,10 @@ class Footnote
 
    def link
       @text.sub(@mark+" ", "").gsub('\n', "").strip
+   end
+
+   def label
+      @text.sub(@mark+" label : ", "").gsub('\n', " ").strip
    end
 end
 

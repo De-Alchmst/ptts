@@ -73,6 +73,12 @@ def get_lines
          unless line.footnotes.empty?
             Data.normal_footnotes[normal_lines.size - 1] = line.footnotes
          end
+
+         unless line.labels.empty?
+            line.labels.each { |label|
+               Data.labels[label] = normal_lines.size - 1
+            }
+         end
       }
 
       # page breaks #

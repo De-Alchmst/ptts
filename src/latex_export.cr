@@ -124,7 +124,6 @@ def prepare_latex
 % labels
 % https://stackoverflow.com/questions/3831705/how-can-i-attach-a-latex-marker-to-an-arbitrary-place-in-text
 \\newcounter{lc}
-\\newcommand\\refitem{\\refstepcounter{lc}\\thelc}
 
 \\begin{document}
 
@@ -154,7 +153,7 @@ def outcome2latex
          # label
          unless line.labels.empty?
             line.labels.each { |label|
-               txt += "\\refitem\\label{#{label}}"
+               txt += "\\refstepcounter{lc}\\label{#{label}}"
             }
          end
 

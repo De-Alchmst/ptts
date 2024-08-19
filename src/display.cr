@@ -121,11 +121,41 @@ def get_lines
       end
    }
 
-   if Data.concat_metadata
+   if Data.meta_end
       normal_lines << (Data.plaintext ? "" : "\x1b[0m") \
          + "-" * ((Data.term_width - 4) / 2).floor.to_i \
          + "META" + "-" * ((Data.term_width - 4) / 2).ceil.to_i
       normal_lines += meta_lines
+   end
+
+   if Data.meta_front
+      ln = [] of String
+
+      ln << (Data.plaintext ? "" : "\x1b[0m") \
+         + "-" * ((Data.term_width - 4) / 2).floor.to_i \
+         + "META" + "-" * ((Data.term_width - 4) / 2).ceil.to_i
+
+      ln += meta_lines
+
+      ln << (Data.plaintext ? "" : "\x1b[0m") \
+         + "-" * ((Data.term_width - 8) / 2).floor.to_i \
+         + "CONTENTS" + "-" * ((Data.term_width - 8) / 2).ceil.to_i
+
+      shift_len = ln.size
+      # fix footnotes
+      nf = {} of Int32 => Array(Footnote)
+
+      Data.normal_footnotes.each { |k, v|
+         nf[k + shift_len] = v
+      }
+      Data.normal_footnotes = nf
+
+      # fix labels
+      Data.labels.each { |k, v|
+         Data.labels[k] = v + shift_len
+      }
+
+      normal_lines = ln + normal_lines
    end
 
    manual_lines = [] of String

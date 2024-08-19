@@ -3,14 +3,15 @@ module Data
       filename, color_mode, prev_colors, indent_level, indent_level_length,
       indent_extra, output_mode, scroll, is_bold, is_italic, is_underlined,
       is_blink, search_list, search_index, vars, instructions, hardnl,
-      number_lines, line_number, num_width, starts_with, meta, current_lines,
+      number_lines, line_number, num_width, starts_with, current_lines,
       footnote_symbols, current_footnotes, footnote_size, wrap, wrap_now,
       last_alignment, prev_hardnl, strip, escape_regex, escape_regex_end,
-      concat_metadata, active_colors, export_name,
+      active_colors, export_name, meta,
       export_darkmode, export_margin, export_last_fg, export_last_bg,
       r_font_name, b_font_name, i_font_name, bi_font_name, font_name,
       file_path, current_lines_mode, manual_mode, meta_footnotes,
-      manual_footnotes, normal_footnotes, labels
+      manual_footnotes, normal_footnotes, labels, meta_front, meta_end,
+      index_front, index_end
    @@term_width : Int32 = 80 # `tput cols`.to_i (not when to pdf)
    @@term_height : Int32 = 24 #`tput lines`.to_i
    @@plaintext = false
@@ -52,7 +53,6 @@ module Data
    @@strip = true
    @@escape_regex = Regex.new("\x1b\\[.*?m")
    @@escape_regex_end = Regex.new("\x1b\\[[^m]*?m$")
-   @@concat_metadata = false
    @@export_name = ""
    @@export_darkmode = false
    @@export_margin = 12
@@ -63,6 +63,10 @@ module Data
    @@current_lines_mode = :normal
    @@manual_mode = false
    @@labels = {} of String => Int32
+   @@meta_front = false
+   @@meta_end = false
+   @@index_front = false
+   @@index_end = false
 end
 
 enum Alingment

@@ -5,13 +5,16 @@ def get_help
    "usage: ptts [flags <flag args>] <filename>\n" \
  + "flags: \n" \
  + "       -h, --help            prints this help message\n" \
- + "       -p, --plaintext       do not add escape sequences\n" \
  + "       -w, --width <num>     sets output width\n" \
+ + "       -m, --meta            concat metadata at the beginning\n" \
+ + "       -M, --meta-end        concat metadata at the end\n" \
+ + "       -i, --index           add label index at the beginning\n" \
+ + "       -I, --index-end       add label index at the end\n" \
+ + "       -p, --plaintext       do not add escape sequences\n" \
+ + "       -d, --dark            uses darkmode in export\n" \
  + "       -s, --stdout          do not use tui interface\n" \
- + "       -m, --meta            concat metadata at the end\n" \
  + "       -x, --pdf             export to pdf\n" \
  + "       -l, --latex           export to latex (not pretty)\n" \
- + "       -d, --dark            uses darkmode in export\n" \
  + "       -f, --font <fontname> sets font\n" \
  + "       -H, --manual          generates the user manual\n"
 end

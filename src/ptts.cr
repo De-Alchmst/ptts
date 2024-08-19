@@ -48,7 +48,16 @@ until ARGV.empty?
          Data.output_mode = :latex
 
       when "meta"
-         Data.concat_metadata = true
+         Data.meta_front = true
+
+      when "meta-end"
+         Data.meta_end = true
+
+      when "index"
+         Data.index_front = true
+
+      when "index-end"
+         Data.index_end = true
 
       when "dark"
          Data.export_darkmode = true
@@ -91,7 +100,16 @@ until ARGV.empty?
             Data.output_mode = :latex
 
          when 'm'
-            Data.concat_metadata = true
+            Data.meta_front = true
+
+         when 'M'
+            Data.meta_end = true
+
+         when "i"
+            Data.index_front = true
+
+         when "I"
+            Data.index_end = true
 
          when 'd'
             Data.export_darkmode = true

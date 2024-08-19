@@ -155,7 +155,7 @@ def outcome2latex
                   txt += "\\blfootnote{#{
                      txt2latex fn.text.gsub(/\s*\n\s*/, " ").strip, true}}\n\n"
                elsif fn.type == :link
-                  txt += "\\blfootnote{#{txt2latex fn.mark}\\href{#{fn.link}}{#{
+                  txt += "\\blfootnote{#{txt2latex fn.mark}~\\href{#{fn.link}}{#{
                      txt2latex fn.text.sub(fn.mark+" ", ""), true}}}\n\n"
                elsif fn.type == :img
                   path = fn.link

@@ -101,7 +101,9 @@ def get_lines
          if Data.output_mode == :stdout
             Data.normal_footnotes.values.each {|ftnts|
                ftnts.each {|ftnt|
-                  normal_lines << ftnt.text
+                  ftnt.text.split("\n").each { |part|
+                     normal_lines << part
+                  }
                }
             }
             Data.normal_footnotes = {} of Int32 => Array(Footnote)
@@ -125,6 +127,28 @@ def get_lines
          Data.meta_footnotes[meta_lines.size - 1] = line.footnotes
       end
    }
+
+   # ACCOUNT FOR META AND INDEX #
+   shift_len = 0
+   if Data.index_front || Data.meta_front
+      shift_len = 1
+      shift_len += 1 + Data.labels.size if Data.index_front
+      shift_len += 1 + meta_lines.size if Data.meta_front
+   end
+   if shift_len
+      # fix footnotes
+      nf = {} of Int32 => Array(Footnote)
+
+      Data.normal_footnotes.each { |k, v|
+         nf[k + shift_len] = v
+      }
+      Data.normal_footnotes = nf
+
+      # fix labels
+      Data.labels.each { |k, v|
+         Data.labels[k] = v + shift_len
+      }
+   end
 
    # INDEX #
    index_lines = [] of String
@@ -159,20 +183,6 @@ def get_lines
          + "-" * ((Data.term_width - 8) / 2).floor.to_i \
          + "CONTENTS" + "-" * ((Data.term_width - 8) / 2).ceil.to_i
 
-      shift_len = ln.size
-      # fix footnotes
-      nf = {} of Int32 => Array(Footnote)
-
-      Data.normal_footnotes.each { |k, v|
-         nf[k + shift_len] = v
-      }
-      Data.normal_footnotes = nf
-
-      # fix labels
-      Data.labels.each { |k, v|
-         Data.labels[k] = v + shift_len
-      }
-
       normal_lines = ln + normal_lines
    end
 
@@ -198,20 +208,6 @@ def get_lines
             + "-" * ((Data.term_width - 8) / 2).floor.to_i \
             + "CONTENTS" + "-" * ((Data.term_width - 8) / 2).ceil.to_i
       end
-
-      shift_len = ln.size
-      # fix footnotes
-      nf = {} of Int32 => Array(Footnote)
-
-      Data.normal_footnotes.each { |k, v|
-         nf[k + shift_len] = v
-      }
-      Data.normal_footnotes = nf
-
-      # fix labels
-      Data.labels.each { |k, v|
-         Data.labels[k] = v + shift_len
-      }
 
       normal_lines = ln + normal_lines
    end

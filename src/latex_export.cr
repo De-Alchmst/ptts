@@ -252,7 +252,7 @@ struct FontData
 end
 
 def locate_font
-   font_dirs = [__DIR__, "#{__DIR__}/../data/Hack/", __DIR__ + "/ptts-fonts/", Data.file_path]
+   font_dirs = [Dir.current+"/", "#{Dir.current}/../data/Hack/", __DIR__ + "/ptts-fonts/", Data.file_path]
 
    ["/usr/share/fonts/", "/usr/local/share/fonts/",
     "#{ENV["HOME"]}/.local/share/fonts/"].each { |dir|

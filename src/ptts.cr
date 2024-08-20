@@ -166,9 +166,7 @@ else
       cur_dir = Dir.current
       Dir.cd "/tmp/ptts"
       # needs to run twice, because of labels
-      # + makeindex now. IDK with latex anymore
       system "xelatex /tmp/ptts/#{Data.export_name}.tex"
-      system "makeindex /tmp/ptts/#{Data.export_name}.idx"
       system "xelatex /tmp/ptts/#{Data.export_name}.tex"
       Dir.cd cur_dir
       FileUtils.mv "/tmp/ptts/#{Data.export_name}.pdf", "./#{Data.export_name}.pdf"

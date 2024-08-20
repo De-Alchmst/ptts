@@ -259,7 +259,7 @@ def get_reset_line
 
    contents += "setindl{#{Data.indent_level_length}};"
    contents += "rindl{#{Data.indent_level}};"
-   contents += "rindn{#{Data.indent_extra}}\n\n"
+   contents += "rindn{#{Data.indent_extra}}"
    return contents
 end
 

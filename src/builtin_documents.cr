@@ -278,12 +278,10 @@ reached, first repeats doubled
 @x{ib} ignores this line from now onward including any left instructions
 
 @vtab{1}
-@x{ih} @sourcetxt{path}
-@x{ib} inserts contents of file at 'path' to this place, set configs are ignored
-@x{ih} @sourcecnfg{path}
+@x{ih} @source{path}
 @x{ib} sources formatting, variables and meta from file at 'path'
-@x{ih} @sourceall{path}
-@x{ib} inserts and sources everything from file at 'path'
+@x{ih} @sourceclear{path}
+@x{ib} inserts and sources everything from file at 'path', but then resets to previous settings after that
 
 @vtab{1}
 @x{ih} @startswith{text}

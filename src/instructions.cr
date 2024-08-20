@@ -803,7 +803,8 @@ module Insts
          ->(arg : String) {
             parts = arg.split ";"
             unless parts.size == 2
-               abort "needs two ';' separated arguments, but '#{arg}' given "
+               abort "needs two ';' separated arguments, but '#{arg}' given " \
+                   + "in file: #{Data.filename} at line #{Data.file_line_count}"
             end
 
             unless Data.output_mode == :pdf || Data.output_mode == :latex
@@ -834,6 +835,16 @@ module Insts
             Outcome.add_footnote arg, :label
             nil
          }
+      ],
+
+      "source" => [ # handled in file_handle
+         ->(arg : String) {},
+         ->(arg : String) {}
+      ],
+
+      "sourceclear" => [ # handled in file_handle
+         ->(arg : String) {},
+         ->(arg : String) {}
       ],
    }
 end

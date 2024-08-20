@@ -186,7 +186,7 @@ def outcome2latex
                elsif fn.type == :img
                   path = fn.link
                   txt += "\n\\includegraphics{#{
-                     path[0] == '/' ? path : "#{__DIR__}/#{path}"
+                     path[0] == '/' ? path : "#{Dir.current}/#{path}"
                   }}\n\n"
                elsif fn.type == :label
                   txt += "\\blfootnote{#{txt2latex fn.mark}~\\hyperref[#{

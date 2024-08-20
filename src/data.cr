@@ -190,3 +190,90 @@ module Colors
       "default" => "49",
    }
 end
+
+def get_reset_line
+   contents = "@"
+   if Data.is_bold
+      contents += "bb;"
+   else
+      contents += "eb;"
+   end
+   if Data.is_italic
+      contents += "bi;"
+   else
+      contents += "ei;"
+   end
+   if Data.is_underlined
+      contents += "bu;"
+   else
+      contents += "eu;"
+   end
+   if Data.is_blink
+      contents += "bblink;"
+   else
+      contents += "eblink;"
+   end
+   if Data.hardnl
+      contents += "hardnl;"
+   else
+      contents += "softnl;"
+   end
+   if Data.wrap
+      unless Data.strip
+         contents += "bart;"
+      else
+         contents += "wrap;"
+      end
+   else
+      unless Data.strip
+         contents += "nowrap;"
+      else
+         contents += "eart;"
+      end
+   end
+   if Outcome.alingment == Alingment::Left
+      contents += "lft;"
+   elsif Outcome.alingment == Alingment::Center
+      contents += "cnt;"
+   else
+      contents += "rght;"
+   end
+
+   contents += "fg;#{esc2color Data.prev_colors[:foreground]};"
+   contents += (esc2color Data.active_colors[:foreground]) + ";"
+   contents += "bg;#{esc2color Data.prev_colors[:background]};"
+   contents += (esc2color Data.active_colors[:background]) + ";"
+   if Data.color_mode == :foreground
+      contents += "fg;"
+   else
+      contents += "bg;"
+   end
+
+   contents += "enum;" unless Data.number_lines
+
+   if Data.starts_with.empty?
+      contents += "startswithnothing;"
+   else
+      contents += "startswith{#{Data.starts_with}};"
+   end
+
+   contents += "setindl{#{Data.indent_level_length}};"
+   contents += "rindl{#{Data.indent_level}};"
+   contents += "rindn{#{Data.indent_extra}}\n\n"
+   return contents
+end
+
+def esc2color(clr : String)
+   if clr.includes? ";"
+      clrs = clr.split ";"
+      return "brgb{#{clrs[2]};#{clrs[3]};#{clrs[4]}}"
+   else
+      Colors.fg.each { |k, v|
+         return "bcl{#{k}}" if clr == v
+      }
+      Colors.bg.each { |k, v|
+         return "bcl{#{k}}" if clr == v
+      }
+   end
+   ""
+end

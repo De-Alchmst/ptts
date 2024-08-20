@@ -98,9 +98,8 @@ indented by extra 'num' spaces, negative num decreases indent
 
 - @cmnt - ignores this line from now onward including any left instructions
 
-- @sourcetxt{path} - inserts contents of file at 'path' to this place, set configs are ignored
-- @sourcecnfg{path} - sources formatting, variables and meta from file at 'path'
-- @sourceall{path} - inserts and sources everything from file at 'path'
+- @source{path} - inserts and sources everything from file at 'path'
+- @sourceclear{path} - inserts and sources everything from file at 'path', but then resets to previous settings after that
 
 - @startswith{text} - will insert this text at beginning of lines from now onward
 - @startswithnothing - will reser @startswith to nothing

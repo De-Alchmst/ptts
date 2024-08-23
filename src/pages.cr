@@ -72,26 +72,34 @@ class Line
       @text = @text.rstrip if @strip
       txt_size = @text.gsub(Data.escape_regex, "").size
 
+      o : String
       if @alingment == Alingment::Left
-         escapes_start + @number + leading_whitespace + escapes_middle \
-            + @starts_with + @text
+         o = escapes_start + @number + leading_whitespace + escapes_middle \
+                           + @starts_with + @text
       elsif @alingment == Alingment::Center
-         escapes_start + number + escapes_middle \
-                       + @starts_with + escapes_start \
-                       + " " * ((Data.term_width - number.size \
-                                                 - txt_size \
-                                                 - @starts_with.size)/2).to_i \
-                       + escapes_middle + @text
+         o = escapes_start + number + escapes_middle \
+                           + @starts_with + escapes_start \
+                           + " " * ((Data.term_width - number.size \
+                                                     - txt_size \
+                                                     - @starts_with.size)/2).to_i \
+                           + escapes_middle + @text
       else
-         escapes_start + number + escapes_middle \
-                       + @starts_with + escapes_start \
-                       + " " * (Data.term_width - number.size \
-                                - txt_size - @indent \
-                                - @starts_with.size) \
-                       + escapes_middle + @text \
-                       + (Data.plaintext ? "" : "\x1b[0m") \
-                       + leading_whitespace
+         o = escapes_start + number + escapes_middle \
+                           + @starts_with + escapes_start \
+                           + " " * (Data.term_width - number.size \
+                                    - txt_size - @indent \
+                                    - @starts_with.size) \
+                           + escapes_middle + @text \
+                           + (Data.plaintext ? "" : "\x1b[0m") \
+                           + leading_whitespace
       end
+
+      o += "\x1b[0m" unless Data.plaintext
+      if Data.output_mode == :tui
+         size = o.gsub(Data.escape_regex, "").size
+         o += " " * (Data.actual_width - size)
+      end
+      return o
    end
 end
 

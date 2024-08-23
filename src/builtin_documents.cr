@@ -118,17 +118,17 @@ In 'plaintext' mode, any text formatting relying on escape sequences is ignored.
 @x{ih} @cnt
 @x{ib} sets curent line as block beginning and makes text from now on centered
 @x{ih} @cntln
-@x{ib} makse current line its own line and makse it centered
+@x{ib} makes current line its own line and makes it centered
 @x{ih} @lft
 @x{ib} sets curent line as block beginning and makes text from now on left
 aligned
 @x{ih} @lftln
-@x{ib} makse current line its own line and makse it left aligned
+@x{ib} makes current line its own line and makes it left aligned
 @x{ih} @rght
 @x{ib} sets curent line as block beginning and makes text from now on left
 aligned
 @x{ih} @rghtln
-@x{ib} makse current line its own line and makse it right aligned
+@x{ib} makes current line its own line and makes it right aligned
 
 @vtab{1}
 @x{ih} @indl{num}

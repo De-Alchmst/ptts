@@ -148,11 +148,12 @@ end
 unless Data.output_mode == :pdf
    {% if flag?(:linux) %}
       Data.term_height = `tput lines`.to_i
-      Data.term_width = `tput cols`.to_i unless width_set && Data.output_mode != :tui
+      Data.term_width = `tput cols`.to_i unless width_set
    {% else %}
       Data.term_height = `powershell -command "$HOST.UI.RawUI.windowSize.height"`.to_i
       Data.term_width = `powershell -command "$HOST.UI.RawUI.windowSize.width"`.to_i unless width_set
    {% end %}
+   Data.actual_width = Data.term_width
 end
 
 # check for xelatech

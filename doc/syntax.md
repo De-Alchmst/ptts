@@ -17,11 +17,11 @@ In 'plaintext' mode, any text formatting relying on escape sequences is ignored.
 - @@ - just inserts '@'
 
 - @cnt - sets curent line as block beginning and makes text from now on centered
-- @cntln - makse current line its own line and makse it centered
+- @cntln - makes current line its own line and makes it centered
 - @lft - sets curent line as block beginning and makes text from now on left aligned
-- @lftln - makse current line its own line and makse it left aligned
+- @lftln - makes current line its own line and makes it left aligned
 - @rght - sets curent line as block beginning and makes text from now on left aligned
-- @rghtln - makse current line its own line and makse it right aligned
+- @rghtln - makes current line its own line and makes it right aligned
 
 - @indl{num} - sets curent line as block beginning and indents it by extra 'num'
 levels, rest of block will be not affected, negative num decreses indent

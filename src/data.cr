@@ -11,7 +11,7 @@ module Data
       r_font_name, b_font_name, i_font_name, bi_font_name, font_name,
       file_path, current_lines_mode, manual_mode, meta_footnotes,
       manual_footnotes, normal_footnotes, labels, meta_front, meta_end,
-      index_front, index_end, max_width
+      index_front, index_end, max_width, actual_width
    @@term_width : Int32 = 80 # `tput cols`.to_i (not when to pdf)
    @@term_height : Int32 = 24 #`tput lines`.to_i
    @@plaintext = false
@@ -68,6 +68,7 @@ module Data
    @@index_front = false
    @@index_end = false
    @@max_width = 0
+   @@actual_width = 80
 end
 
 enum Alingment

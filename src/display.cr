@@ -22,6 +22,9 @@ def handle_resizing(normal_lines, meta_lines, manual_lines, index_lines, \
             x = `powershell -command "$HOST.UI.RawUI.windowSize.width"`.to_i
             y = `powershell -command "$HOST.UI.RawUI.windowSize.height"`.to_i
          {% end %}
+         # if Data.max_width > 0
+         #    x = Data.max_width if x > Data.max_width
+         # end
 
          if x != Data.term_width || y != Data.term_height
             Data.term_width = x

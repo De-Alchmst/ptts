@@ -290,6 +290,7 @@ reached, first repeats doubled
 @x{ib} will reser @startswith to nothing
 
 @vtab{1}
+@rindl{0}
 Please note, that ptts does not have any more advanced macro system than 'x'
 on purpose.
 In the spirit of the UNIX philosophy, if you find yourself in the need of

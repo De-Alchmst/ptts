@@ -26,9 +26,9 @@ def prepare_latex
    document, index = outcome2latex
 
    page_width = 595.0 - Data.export_margin * 2
-   fontsize = page_width / Data.term_width * 1.5
-   fontsize = fontsize.floor
-   side_margin = (595 - fontsize / 1.5 * Data.term_width) / 2
+   fontsize_orig = ((page_width / Data.term_width) * 1.7)
+   fontsize = fontsize_orig.floor
+   side_margin = (595.0 - ((fontsize_orig / 1.7) * Data.term_width)) / 2
 
    latex = %{
 \\documentclass{article}

@@ -51,7 +51,7 @@ if (-not $?) {
 }
 
 # install
-$binDir = "C:\ProgramFiles\ptts\"
+$binDir = "C:\Program Files\ptts\"
 $dataDir = "C:\ProgramFiles\ptts\fonts\"
 
 if ($local) {

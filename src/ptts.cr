@@ -143,9 +143,14 @@ unless STDOUT.tty?
 end
 
 # measure term if not in pdf or latex
-unless Data.output_mode == :pdf || Data.output_mode == :latex
+unless Data.output_mode == :pdf
    Data.term_height = `tput lines`.to_i
    Data.term_width = `tput cols`.to_i unless width_set
+end
+
+# check for xelatech
+if Data.output_mode == :pdf || Data.output_mode == :latex
+   abort "xelatex not found" if `which xelatex`.empty?
 end
 
 #########################

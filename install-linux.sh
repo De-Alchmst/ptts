@@ -71,3 +71,8 @@ cp ptts $BIN_DIR
 cp -r ../data/Hack/* $DATA_DIR
 
 echo "Done!"
+
+which xelatex > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+   echo -e "\x1b[31mWARNING: xelatex not found, exporting to pdf won't work!\x1b[0m"
+fi

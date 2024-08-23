@@ -316,7 +316,7 @@ end
 def locate_font
    font_dirs = [Dir.current+"/", "#{Dir.current}/../data/Hack/",
                 __DIR__ + "/ptts-fonts/", Data.file_path,
-				"C:/ProgramFiles/ptts/fonts/", "#{ENV["localappdata"]}/ptts/fonts/"]
+				"C:/Program Files/ptts/fonts/", "#{ENV["localappdata"]}/ptts/fonts/"]
 
    ["C:/windows/fonts/",
     "C:/users/#{ENV["USERNAME"]}/appdata/local/microsoft/windows/fonts"].each { |dir|

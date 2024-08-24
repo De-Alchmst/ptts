@@ -144,6 +144,13 @@ unless STDOUT.tty?
    Data.output_mode = :stdout
 end
 
+# TUI doesn't work on Windows
+{% unless flag?(:linux) %}
+   if Data.output_mode == :tui
+      Data.output_mode = :stdout
+   end
+{% end %}
+
 # measure term if not in pdf or latex
 unless Data.output_mode == :pdf
    {% if flag?(:linux) %}

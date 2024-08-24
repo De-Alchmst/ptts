@@ -95,10 +95,8 @@ class Line
       end
 
       o += "\x1b[0m" unless Data.plaintext
-      if Data.output_mode == :tui
-         size = o.gsub(Data.escape_regex, "").size
-         o += " " * (Data.actual_width - size)
-      end
+      size = o.gsub(Data.escape_regex, "").size
+      o += " " * (Data.actual_width - size)
       return o
    end
 end

@@ -63,3 +63,6 @@ shard.lock
 ptts
 *.pdf
 *.old
+*.dll
+*.exe
+*.pdb

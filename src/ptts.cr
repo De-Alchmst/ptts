@@ -144,13 +144,24 @@ end
 
 # measure term if not in pdf or latex
 unless Data.output_mode == :pdf
-   Data.term_height = `tput lines`.to_i
-   Data.term_width = `tput cols`.to_i unless width_set
+   {% if flag?(:linux) %}
+      Data.term_height = `tput lines`.to_i
+      Data.term_width = `tput cols`.to_i unless width_set
+   {% else %}
+      Data.term_height = `powershell -command "$HOST.UI.RawUI.windowSize.height"`.to_i
+      Data.term_width = `powershell -command "$HOST.UI.RawUI.windowSize.width"`.to_i unless width_set
+   {% end %}
 end
 
 # check for xelatech
 if Data.output_mode == :pdf || Data.output_mode == :latex
-   abort "xelatex not found" if `which xelatex`.empty?
+   {% if flag?(:linux) %}
+      abort "xelatex not found" if `which xelatex`.empty?
+   {% else %}
+      if `powershell -command "get-command ptts -ErrorAction silentlyContinue"`.empty?
+         abort "xelatex not found"
+      end
+   {% end %}
 end
 
 #########################
@@ -167,6 +178,7 @@ if Data.output_mode == :tui || Data.output_mode == :stdout
 else
    prepare_latex
 
+{% if flag?(:linux) %}
    if Data.output_mode == :pdf
       cur_dir = Dir.current
       Dir.cd "/tmp/ptts"
@@ -177,5 +189,18 @@ else
       FileUtils.mv "/tmp/ptts/#{Data.export_name}.pdf", "./#{Data.export_name}.pdf"
    else
       File.copy "/tmp/ptts/#{Data.export_name}.tex", "./#{Data.export_name}.tex"
-   end
+   end 
+{% else %}
+   if Data.output_mode == :pdf
+      cur_dir = Dir.current
+      Dir.cd "#{ENV["TEMP"]}/ptts"
+      # needs to run twice, because of labels
+      system "xelatex #{ENV["TEMP"]}/ptts/#{Data.export_name}.tex"
+      system "xelatex #{ENV["TEMP"]}/ptts/#{Data.export_name}.tex"
+      Dir.cd cur_dir
+      FileUtils.mv "#{ENV["TEMP"]}/ptts/#{Data.export_name}.pdf", "./#{Data.export_name}.pdf"
+   else
+      File.copy "#{ENV["TEMP"]}/ptts/#{Data.export_name}.tex", "./#{Data.export_name}.tex"
+   end 
+{% end %}
 end

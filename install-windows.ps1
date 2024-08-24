@@ -37,6 +37,7 @@ cd src
 echo "Installing shards..."
 shards install
 if (-not $?) {
+   cd ..
    echo "shards install failed, aborting installation"
    exit 1
 }
@@ -44,6 +45,7 @@ if (-not $?) {
 echo "Compiling..."
 crystal build ptts.cr
 if (-not $?) {
+   cd ..
    echo "crystal build failed, aborting installation"
    exit 1
 }
@@ -62,7 +64,7 @@ new-item -path $binDir -itemType directory -force -ErrorAction silentlyContinue
 new-item -path $dataDir -itemType directory -force -ErrorAction silentlyContinue
 
 echo "copying files"
-cp ptts $binDir
+cp ptts.exe $binDir
 cp ..\data\Hack\* $dataDir
 
 echo "adding to $PATH"

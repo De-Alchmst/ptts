@@ -20,5 +20,11 @@ Font names should be as follows:
 <fontname>-BoldItalic.{otf|ttf}
 ```
 
+## Windows problems
+Tui doesn't work. Probably [crystal-term/reader](https://github.com/crystal-term/reader) issue.
+
+Windows does not follow any naming conventions, so only the built-in Hack works
+(and any fonts in same dir that follow the mentioned convention)
+
 ## attributions
 ptts comes with the [HACK](https://sourcefoundry.org/hack/) font.

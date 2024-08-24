@@ -8,9 +8,15 @@ require "path"
 # put stuff together #
 ######################
 def prepare_tmp
+{% if flag?(:linux) %}
    unless Dir.exists? "/tmp/ptts"
       Dir.mkdir "/tmp/ptts"
    end
+{% else %}
+   unless Dir.exists? "#{ENV["TEMP"]}/ptts"
+      Dir.mkdir "#{ENV["TEMP"]}/ptts"
+   end
+{% end %}
 end
 
 def prepare_latex
@@ -144,7 +150,11 @@ def prepare_latex
 
 \\end{document}}
 
+{% if flag?(:linux) %}
    File.write "/tmp/ptts/#{Data.export_name}.tex", latex
+{% else %}
+   File.write "#{ENV["TEMP"]}/ptts/#{Data.export_name}.tex", latex
+{% end %}
 end
 
 ############################
@@ -251,6 +261,7 @@ struct FontData
    end
 end
 
+{% if flag?(:linux) %}
 def locate_font
    font_dirs = [Dir.current+"/", "#{Dir.current}/../data/Hack/",
                 __DIR__ + "/ptts-fonts/", Data.file_path,
@@ -300,3 +311,55 @@ def locate_font
 
    return dat
 end
+
+{% else %}
+def locate_font
+   font_dirs = [Dir.current+"/", "#{Dir.current}/../data/Hack/",
+                __DIR__ + "/ptts-fonts/", Data.file_path,
+				"C:/ProgramFiles/ptts/fonts/", "#{ENV["localappdata"]}/ptts/fonts/"]
+
+   ["C:/windows/fonts/",
+    "C:/users/#{ENV["USERNAME"]}/appdata/local/microsoft/windows/fonts"].each { |dir|
+      Dir.children(dir).each { |child|
+         font_dirs << "#{dir}#{child}/"
+      }
+   }
+
+   font_extensions = [".ttf", ".otf", ".TTF", ".OTF"]
+
+   dat = FontData.new "", "", "-Regular", false, false, false, false, false
+
+   font_dirs.each { |dir|
+      next unless Dir.exists? dir
+      font_extensions.each { |ext|
+         puts "#{dir}#{Data.font_name}#{ext}"
+         if File.exists? "#{dir}#{Data.font_name}-Regular#{ext}"
+            dat.dir = dir.gsub '\\', '/'
+            dat.ext = ext
+            break
+         end
+         if File.exists? "#{dir}#{Data.font_name}#{ext}"
+            dat.dir = dir
+            dat.ext = ext
+            dat.regular_word = ""
+            break
+         end
+      }
+      break if dat.dir != ""
+   }
+
+   if dat.dir == ""
+      abort "font not found: #{Data.font_name} "
+   end
+
+   dat.bold = File.exists? "#{dat.dir}#{Data.font_name}-Bold#{dat.ext}"
+   dat.italic = File.exists? "#{dat.dir}#{Data.font_name}-Italic#{dat.ext}"
+   dat.oblique = File.exists? "#{dat.dir}#{Data.font_name}-Oblique#{dat.ext}"
+   dat.bolditalic = File.exists? \
+      "#{dat.dir}#{Data.font_name}-BoldItalic#{dat.ext}"
+   dat.boldoblique = File.exists? \
+      "#{dat.dir}#{Data.font_name}-BoldOblique#{dat.ext}"
+
+   return dat
+end
+{% end %}

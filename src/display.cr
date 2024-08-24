@@ -15,8 +15,13 @@ def handle_resizing(normal_lines, meta_lines, manual_lines, index_lines, \
       y : Int32
       loop {
          sleep 0.25
-         x = `tput cols`.to_i
-         y = `tput lines`.to_i
+         {% if flag?(:linux) %}
+            x = `tput lines`.to_i
+            y = `tput cols`.to_i unless width_set
+         {% else %}
+            x = `powershell -command "$HOST.UI.RawUI.windowSize.height"`.to_i
+            y = `powershell -command "$HOST.UI.RawUI.windowSize.width"`.to_i
+         {% end %}
 
          if x != Data.term_width || y != Data.term_height
             Data.term_width = x

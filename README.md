@@ -5,6 +5,8 @@ A nice way to format text to be shown inside terminal / with monospace font.
 Both more clasicall and vi-based keybindings are supported in the tui.
 Metadata can be shown by pressing 'm'
 
+[usage](doc/syntax.md)
+
 ## dependencies
 - xelatex (optional, but needed for pdf)
 - Visual Studio Build Tools (if compiling on Windows (should come with the compiler??))

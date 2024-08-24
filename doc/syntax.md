@@ -6,6 +6,9 @@ Some instructions operate on this line of text
 Multiple instructions can be called from one line by seperating them with ';'.
 Some instructions take arguments in curly brackets.
 
+Text can be outputed as text, viewed in a TUI, or exported to a pdf.
+You can also export to LaTeX, but it's not very readable.
+
 ptts can operate in three modes: 'plaintext', 'terminal' and 'pdf'.
 In 'plaintext' mode, any text formatting relying on escape sequences is ignored.
 

@@ -2,8 +2,7 @@
 
 A nice way to format text to be shown inside terminal / with monospace font.
 
-Both more clasicall and vi-based keybindings are supported in the tui.
-Metadata can be shown by pressing 'm'
+Both more clasical and vi-based keybindings are supported in the tui.
 
 [usage](doc/syntax.md)
 

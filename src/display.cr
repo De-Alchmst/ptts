@@ -15,7 +15,7 @@ def handle_resizing(normal_lines, meta_lines, manual_lines, index_lines, \
       y : Int32
       loop {
          sleep 0.25
-         {% if flag?(:linux) %}
+         {% unless flag?(:windows) %}
             x = `tput cols`.to_i
             y = `tput lines`.to_i
          {% else %}

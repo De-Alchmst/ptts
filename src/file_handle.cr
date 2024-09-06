@@ -27,7 +27,12 @@ def process_file(filename : String, contents="", init=true)
 
    if contents.empty?
       abort "file not found: #{filename}" unless File.exists? filename
+
+      {% if compare_versions(Crystal::VERSION, "1.13.0") == -1 %}
+      abort "file not readable: #{filename}" unless File.readable? filename
+      {% else %}
       abort "file not readable: #{filename}" unless File::Info.readable? filename
+      {% end %}
 
       lines = File.read(filename).strip.split /\n/
    else
@@ -74,10 +79,17 @@ def process_file(filename : String, contents="", init=true)
                   abort "not a file: #{arg} " \
                      + "in file: #{filename} at line #{i+1}"
                end
-               unless File::Info.readable? arg
-                  abort "not readable: #{arg} " \
-                     + "in file: #{filename} at line #{i+1}"
-               end
+               {% if compare_versions(Crystal::VERSION, "1.13.0") == -1 %}
+                  unless File.readable? arg
+                     abort "not readable: #{arg} " \
+                        + "in file: #{filename} at line #{i+1}"
+                  end
+               {% else %}
+                  unless File::Info.readable? arg
+                     abort "not readable: #{arg} " \
+                        + "in file: #{filename} at line #{i+1}"
+                  end
+               {% end %}
 
                insts = Data.instructions
 

@@ -145,7 +145,7 @@ unless STDOUT.tty?
 end
 
 # TUI doesn't work on Windows
-{% unless flag?(:linux) %}
+{% if flag?(:windows) %}
    if Data.output_mode == :tui
       Data.output_mode = :stdout
    end
@@ -153,7 +153,7 @@ end
 
 # measure term if not in pdf or latex
 unless Data.output_mode == :pdf
-   {% if flag?(:linux) %}
+   {% unless flag?(:windows) %}
       Data.term_height = `tput lines`.to_i
       Data.term_width = `tput cols`.to_i unless width_set
    {% else %}
@@ -165,7 +165,7 @@ end
 
 # check for xelatech
 if Data.output_mode == :pdf || Data.output_mode == :latex
-   {% if flag?(:linux) %}
+   {% unless flag?(:windows) %}
       abort "xelatex not found" if `which xelatex`.empty?
    {% else %}
       if `powershell -command "get-command ptts -ErrorAction silentlyContinue"`.empty?
@@ -188,7 +188,7 @@ if Data.output_mode == :tui || Data.output_mode == :stdout
 else
    prepare_latex
 
-{% if flag?(:linux) %}
+{% unless flag?(:windows) %}
    if Data.output_mode == :pdf
       cur_dir = Dir.current
       Dir.cd "/tmp/ptts"

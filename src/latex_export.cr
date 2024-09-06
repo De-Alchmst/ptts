@@ -8,7 +8,7 @@ require "path"
 # put stuff together #
 ######################
 def prepare_tmp
-{% if flag?(:linux) %}
+{% unless flag?(:windows) %}
    unless Dir.exists? "/tmp/ptts"
       Dir.mkdir "/tmp/ptts"
    end
@@ -150,7 +150,7 @@ def prepare_latex
 
 \\end{document}}
 
-{% if flag?(:linux) %}
+{% unless flag?(:windows) %}
    File.write "/tmp/ptts/#{Data.export_name}.tex", latex
 {% else %}
    File.write "#{ENV["TEMP"]}/ptts/#{Data.export_name}.tex", latex
@@ -261,7 +261,7 @@ struct FontData
    end
 end
 
-{% if flag?(:linux) %}
+{% unless flag?(:windows) %}
 def locate_font
    font_dirs = [Dir.current+"/", "#{Dir.current}/../data/Hack/",
                 __DIR__ + "/ptts-fonts/", Data.file_path,
@@ -269,9 +269,11 @@ def locate_font
 
    ["/usr/share/fonts/", "/usr/local/share/fonts/",
     "#{ENV["HOME"]}/.local/share/fonts/"].each { |dir|
-      Dir.children(dir).each { |child|
-         font_dirs << "#{dir}#{child}/"
-      }
+      if File.exists? dir
+         Dir.children(dir).each { |child|
+            font_dirs << "#{dir}#{child}/"
+         }
+      end
    }
 
    font_extensions = [".ttf", ".otf", ".TTF", ".OTF"]

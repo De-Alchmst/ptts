@@ -95,8 +95,10 @@ class Line
       end
 
       o += "\x1b[0m" unless Data.plaintext
-      size = o.gsub(Data.escape_regex, "").size
-      o += " " * (Data.actual_width - size)
+      unless Data.output_mode == :latex || Data.output_mode == :pdf
+         size = o.gsub(Data.escape_regex, "").size
+         o += " " * (Data.actual_width - size)
+      end
       return o
    end
 end

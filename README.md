@@ -7,6 +7,7 @@ Both more clasical and vi-based keybindings are supported in the tui.
 [usage](doc/syntax.md)
 
 ## dependencies
+- libreadline (needs devel package if compiling)
 - xelatex (optional, but needed for pdf)
 - Visual Studio Build Tools (if compiling on Windows (should come with the compiler??))
 

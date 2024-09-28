@@ -28,7 +28,7 @@ In 'plaintext' mode, any text formatting relying on escape sequences is ignored.
 
 - @indl{num} - sets curent line as block beginning and indents it by extra 'num'
 levels, rest of block will be not affected, negative num decreses indent
-- @brndl{num} - sets indent level from now on
+    - @rindl{num} - sets indent level from now on
 - @bindl{num} - sets curent line as block beginning and all text will be
 indented by extra 'num' levels, negative num decreases indent
 - @softbindl{num} - adds indent without breaking block

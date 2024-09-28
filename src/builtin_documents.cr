@@ -134,7 +134,7 @@ aligned
 @x{ih} @indl{num}
 @x{ib} sets curent line as block beginning and indents it by extra 'num'
 levels, rest of block will be not affected, negative num decreses indent
-@x{ih} @brndl{num}
+@x{ih} @rindl{num}
 @x{ib} sets indent level from now on
 @x{ih} @bindl{num}
 @x{ib} sets curent line as block beginning and all text will be

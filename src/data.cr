@@ -6,7 +6,7 @@ module Data
       number_lines, line_number, num_width, starts_with, current_lines,
       footnote_symbols, current_footnotes, footnote_size, wrap, wrap_now,
       last_alignment, prev_hardnl, strip, escape_regex, escape_regex_end,
-      active_colors, export_name, meta,
+      active_colors, export_name, meta, export_margin_spaces,
       export_darkmode, export_margin, export_last_fg, export_last_bg,
       r_font_name, b_font_name, i_font_name, bi_font_name, font_name,
       file_path, current_lines_mode, manual_mode, meta_footnotes,
@@ -56,6 +56,7 @@ module Data
    @@export_name = ""
    @@export_darkmode = false
    @@export_margin = 12
+   @@export_margin_spaces = 2
    @@export_last_fg = "\\textcolor{fgdefault}{"
    @@export_last_bg = "\\colorbox{bgdefault}{"
    @@font_name = "Hack"

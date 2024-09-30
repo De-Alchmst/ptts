@@ -25,16 +25,17 @@ def prepare_latex
 
    document, index = outcome2latex
 
-   page_width = 595.0 - Data.export_margin * 2
-   fontsize_orig = ((page_width / Data.term_width) * 1.7)
+   page_width = 595.0
+   fontsize_orig = ((page_width / (Data.term_width + \
+                                   Data.export_margin_spaces * 2)) \
+                    * 1.7)
    fontsize = fontsize_orig.floor
-   side_margin = (595.0 - ((fontsize_orig / 1.7) * Data.term_width)) / 2
 
    latex = %{
 \\documentclass{article}
 \\usepackage{xcolor}
 \\usepackage{fontspec}
-\\usepackage[a4paper, left=#{side_margin}pt, right=#{side_margin}pt, top=#{Data.export_margin}pt, bottom=#{
+\\usepackage[a4paper, left=0pt, right=0pt, top=#{Data.export_margin}pt, bottom=#{
    Data.export_margin >= 40 ? Data.export_margin : 40
 }pt]{geometry}
 \\usepackage[skip=-1pt]{parskip}
@@ -181,7 +182,7 @@ def outcome2latex
          end
 
          # text
-         txt += "#{txt2latex(line.align)}\n"
+         txt += "#{txt2latex(" " * Data.export_margin_spaces + line.align)}\n"
 
          # footnote
          unless line.footnotes.empty?
@@ -283,7 +284,6 @@ def locate_font
    font_dirs.each { |dir|
       next unless Dir.exists? dir
       font_extensions.each { |ext|
-         puts "#{dir}#{Data.font_name}#{ext}"
          if File.exists? "#{dir}#{Data.font_name}-Regular#{ext}"
             dat.dir = dir
             dat.ext = ext
@@ -334,7 +334,6 @@ def locate_font
    font_dirs.each { |dir|
       next unless Dir.exists? dir
       font_extensions.each { |ext|
-         puts "#{dir}#{Data.font_name}#{ext}"
          if File.exists? "#{dir}#{Data.font_name}-Regular#{ext}"
             dat.dir = dir.gsub '\\', '/'
             dat.ext = ext

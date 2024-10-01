@@ -71,9 +71,9 @@ cp ptts $BIN_DIR
 cp -r ../data/Hack/* $DATA_DIR
 
 echo "Done!"
-printf "\033[32minstalled to: $BIN_DIR\033[0m"
+printf "\033[32minstalled to: $BIN_DIR\033[0m\n"
 
 which xelatex > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-   printf "\033[31mWARNING: xelatex not found, exporting to pdf won't work!\033[0m"
+   printf "\033[31mWARNING: xelatex not found, exporting to pdf won't work!\033[0m\n"
 fi

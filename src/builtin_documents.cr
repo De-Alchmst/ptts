@@ -1,10 +1,15 @@
 require "./data.cr"
 require "./file_handle.cr"
 
+def version
+   "1.3.1"
+end
+
 def get_help
    "usage: ptts [flags <flag args>] <filename>\n" \
  + "flags: \n" \
  + "       -h, --help            prints this help message\n" \
+ + "       -V, --version         displays the version (#{version} btw)\n" \
  + "       -w, --width <num>     sets output width\n" \
  + "       -m, --meta            concat metadata at the beginning\n" \
  + "       -M, --meta-end        concat metadata at the end\n" \

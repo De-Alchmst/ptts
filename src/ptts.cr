@@ -26,6 +26,10 @@ until ARGV.empty?
       when "plaintext"
          Data.plaintext = true
 
+      when "version"
+         puts "version: #{version}"
+         exit
+
       when "width"
          abort "missing argument for --width" if ARGV.empty?
 
@@ -78,6 +82,10 @@ until ARGV.empty?
             help
          when 'p'
             Data.plaintext = true
+
+         when 'V'
+            puts "version: #{version}"
+            exit
 
          when 'w'
             abort "missing argument for --width" if ARGV.empty?

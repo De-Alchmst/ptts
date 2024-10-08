@@ -18,6 +18,7 @@ In 'plaintext' mode, any text formatting relying on escape sequences is ignored.
 
 ### general
 - @@ - just inserts '@'
+- @ss - skip space (for when you need punctuation after formatting)
 
 - @cnt - sets curent line as block beginning and makes text from now on centered
 - @cntln - makes current line its own line and makes it centered
@@ -46,11 +47,13 @@ indented by extra 'num' spaces, negative num decreases indent
 - @pgbr - pagebreak
 - @pgeven - pagebreak at least once until even page number
 - @pgodd - pagebreak at least once until odd page number
+
 - @footnote{note} - inserts footnote mark and adds footnote at the bottom of the page
 - @link{url} - inserts hyperlink (footnote in terminal mode)
 - @img{url;alt} - inserts image (alt with a footnote in terminal mode)
+
 - @label{name} - marks this line as a label of given name
-- reflabel{name} - refers to label by given name
+- @reflabel{name} - refers to label by given name
 
 ### terminal/pdf only
 - @b - makes line bold

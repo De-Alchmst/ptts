@@ -113,6 +113,9 @@ In 'plaintext' mode, any text formatting relying on escape sequences is ignored.
 
 @x{ih} @
 @x{ib} writes a '@'
+@x{ih} @ss
+@x{ib} skip space (for when you need punctuation after formatting)
+
 
 @vtab{1}
 @x{ih} @cnt
@@ -167,15 +170,19 @@ indented by extra 'num' spaces, negative num decreases indent
 @x{ib} pagebreak at least once until even page number
 @x{ih} @pgodd
 @x{ib} pagebreak at least once until odd page number
+
+@vtab{1}
 @x{ih} @footnote{note}
 @x{ib} inserts footnote mark and adds footnote at the bottom of the page
 @x{ih} @link{url}
 @x{ib} inserts hyperlink (footnote in terminal mode)
 @x{ih} @img{url;alt}
 @x{ib} inserts image (alt with a footnote in terminal mode)
+
+@vtab{1}
 @x{ih} @label{name}
 @x{ib} marks this line as a label of given name
-@x{ih} reflabel{name}
+@x{ih} @reflabel{name}
 @x{ib} refers to label by given name
 
 @x{h2} terminal/pdf only

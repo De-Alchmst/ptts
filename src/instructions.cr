@@ -409,6 +409,14 @@ module Insts
          },
          -> {}
       ],
+
+      "ss" => [
+         -> {
+            Outcome.skip_space = true
+            nil
+         },
+         -> {}
+      ],
    }
 
    @@with_arg = {

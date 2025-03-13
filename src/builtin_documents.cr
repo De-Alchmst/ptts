@@ -2,7 +2,7 @@ require "./data.cr"
 require "./file_handle.cr"
 
 def version
-   "1.3.1"
+   "1.3.2"
 end
 
 def get_help

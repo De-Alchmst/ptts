@@ -33,6 +33,7 @@ def prepare_latex
 
    latex = %{
 \\documentclass{article}
+\\usepackage[utf8]{inputenc}
 \\usepackage{xcolor}
 \\usepackage{fontspec}
 \\usepackage[a4paper, left=0pt, right=0pt, top=#{Data.export_margin}pt, bottom=#{
@@ -44,6 +45,7 @@ def prepare_latex
 \\usepackage{fancyhdr}
 \\usepackage{hyperref}
 \\usepackage{graphicx}
+\\usepackage[english]{babel}
 
 % Load the external font
 \\setmainfont{#{Data.font_name}}[
